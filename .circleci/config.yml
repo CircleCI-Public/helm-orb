@@ -15,7 +15,7 @@ orb_promotion_filters: &orb_promotion_filters
 orbs:
   aws-eks: circleci/aws-eks@dev:alpha
   cli: circleci/circleci-cli@0.1.2
-  helm: circleci/helm@dev:alpha
+  helm: sandbox/helm@dev:alpha
   kubernetes: circleci/kubernetes@0.2.0
   orb-tools: circleci/orb-tools@7.3.0
   queue: eddiewebb/queue@1.1.2
@@ -113,7 +113,7 @@ workflows:
           requires:
             - orb-tools/pack
       - orb-tools/publish-dev:
-          orb-name: circleci/helm
+          orb-name: sandbox/helm
           context: orb-publishing
           requires:
             - queue/block_workflow
