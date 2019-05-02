@@ -15,11 +15,48 @@ orb_promotion_filters: &orb_promotion_filters
 orbs:
   aws-eks: circleci/aws-eks@dev:alpha
   cli: circleci/circleci-cli@0.1.2
+  helm: sandbox/helm@dev:alpha
+  kubernetes: circleci/kubernetes@0.2.0
   orb-tools: circleci/orb-tools@7.3.0
   queue: eddiewebb/queue@1.1.2
-  kubernetes: circleci/kubernetes@0.2.0
 
 jobs:
+  install-helm-on-eks-cluster:
+    executor: aws-eks/python
+    parameters:
+      cluster-name:
+        type: string
+        description: Cluster name
+    steps:
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+      - helm/install-helm-on-cluster:
+          enable-cluster-wide-admin-access: true
+  install-helm-chart-on-eks-cluster:
+    executor: aws-eks/python
+    parameters:
+      cluster-name:
+        type: string
+        description: Cluster name
+    steps:
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+      - helm/install-helm-chart:
+          chart: stable/grafana
+          release-name: grafana-release
+  delete-helm-release-on-eks-cluster:
+    executor: aws-eks/python
+    parameters:
+      cluster-name:
+        type: string
+        description: Cluster name
+    steps:
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+      - helm/delete-helm-release:
+          release-name: grafana-release
+          purge: true
+          timeout: 600
   pre-orb-promotion-check:
     executor: aws-eks/python2
     steps:
@@ -102,35 +139,27 @@ workflows:
   integration-tests:
     jobs:
       - aws-eks/create-cluster:
-          name: setup-cluster-helm
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-orb-test-helm
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-orb-eks
           filters: *integration_test_filters
-      - aws-eks/install-helm-on-cluster:
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-orb-test-helm
-          enable-cluster-wide-admin-access: true
+      - install-helm-on-eks-cluster:
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-orb-eks
           requires:
-            - setup-cluster-helm
+            - aws-eks/create-cluster
           filters: *integration_test_filters
-      - aws-eks/install-helm-chart:
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-orb-test-helm
-          chart: stable/grafana
-          release-name: grafana-release
+      - install-helm-chart-on-eks-cluster:
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-orb-eks
           requires:
-            - aws-eks/install-helm-on-cluster
+            - install-helm-on-eks-cluster
           filters: *integration_test_filters
-      - aws-eks/delete-helm-release:
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-orb-test-helm
-          release-name: grafana-release
-          purge: true
-          timeout: 600
+      - delete-helm-release-on-eks-cluster:
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-orb-eks
           requires:
-            - aws-eks/install-helm-chart
+            - install-helm-chart-on-eks-cluster
           filters: *integration_test_filters
       - aws-eks/delete-cluster:
-          name: delete-cluster-helm
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-orb-test-helm
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-orb-eks
           requires:
-            - aws-eks/delete-helm-release
+            - delete-helm-release-on-eks-cluster
           filters: *integration_test_filters
   # Tag-triggered workflow to promote a dev orb into production.
   # The tag is expected to have been applied manually.
