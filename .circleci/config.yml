@@ -79,7 +79,7 @@ workflows:
             - queue/block_workflow
       - orb-tools/trigger-integration-workflow:
           name: trigger-integration-dev
-          ssh-fingerprints: 86:57:fb:b2:5b:d0:a6:9c:51:2b:67:f2:40:c4:07:47
+          ssh-fingerprints: 00:5a:6a:2b:18:ad:a5:ad:0c:7f:40:67:7f:ba:46:4c
           tag: integration
           use-git-diff: false
           static-release-type: patch
@@ -90,7 +90,7 @@ workflows:
               ignore: master
       - orb-tools/trigger-integration-workflow:
           name: trigger-integration-master
-          ssh-fingerprints: 86:57:fb:b2:5b:d0:a6:9c:51:2b:67:f2:40:c4:07:47
+          ssh-fingerprints: 00:5a:6a:2b:18:ad:a5:ad:0c:7f:40:67:7f:ba:46:4c
           tag: master
           use-git-diff: false
           static-release-type: patch
