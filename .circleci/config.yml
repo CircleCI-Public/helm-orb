@@ -161,6 +161,7 @@ workflows:
           filters: *integration_test_filters
       - aws-eks/delete-cluster:
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-eks
+          wait: true
           requires:
             - delete-helm-release-on-eks-cluster
           filters: *integration_test_filters
