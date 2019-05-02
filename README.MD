@@ -32,8 +32,6 @@ workflows:
       - helm/install-helm-on-cluster:
           cluster-name: my-helm-demo
           enable-cluster-wide-admin-access: true
-          requires:
-            - azure-aks/create-cluster
       - helm/install-helm-chart:
           cluster-name: my-helm-demo
           chart: stable/grafana

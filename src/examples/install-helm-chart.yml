@@ -1,0 +1,28 @@
+description: |
+  Demonstrate installing a helm chart on a Kubernetes cluster.
+
+usage:
+  version: 2.1
+
+  orbs:
+    helm: circleci/helm@0.0.1
+    kubernetes: circleci/kubernetes@0.2.0
+
+  workflows:
+    deployment:
+      jobs:
+        # Install on existing cluster
+        - helm/install-helm-on-cluster:
+            cluster-name: my-helm-demo
+            enable-cluster-wide-admin-access: true
+        - helm/install-helm-chart:
+            cluster-name: my-helm-demo
+            chart: stable/grafana
+            release-name: grafana-release
+            requires:
+              - helm/install-helm-on-cluster
+        - helm/delete-helm-release:
+            cluster-name: my-helm-demo
+            release-name: grafana-release
+            requires:
+              - helm/install-helm-chart
