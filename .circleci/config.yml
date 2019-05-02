@@ -30,6 +30,7 @@ jobs:
     steps:
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: << parameters.cluster-name >>
+          install-kubectl: true
       - helm/install-helm-on-cluster:
           enable-cluster-wide-admin-access: true
   install-helm-chart-on-eks-cluster:
@@ -41,6 +42,7 @@ jobs:
     steps:
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: << parameters.cluster-name >>
+          install-kubectl: true
       - helm/install-helm-chart:
           chart: stable/grafana
           release-name: grafana-release
@@ -53,6 +55,7 @@ jobs:
     steps:
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: << parameters.cluster-name >>
+          install-kubectl: true
       - helm/delete-helm-release:
           release-name: grafana-release
           purge: true
@@ -139,25 +142,25 @@ workflows:
   integration-tests:
     jobs:
       - aws-eks/create-cluster:
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-orb-eks
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-eks
           filters: *integration_test_filters
       - install-helm-on-eks-cluster:
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-orb-eks
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-eks
           requires:
             - aws-eks/create-cluster
           filters: *integration_test_filters
       - install-helm-chart-on-eks-cluster:
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-orb-eks
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-eks
           requires:
             - install-helm-on-eks-cluster
           filters: *integration_test_filters
       - delete-helm-release-on-eks-cluster:
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-orb-eks
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-eks
           requires:
             - install-helm-chart-on-eks-cluster
           filters: *integration_test_filters
       - aws-eks/delete-cluster:
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-orb-eks
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-eks
           requires:
             - delete-helm-release-on-eks-cluster
           filters: *integration_test_filters
