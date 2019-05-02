@@ -1,6 +1,8 @@
 description: |
   Install the helm client
 
+  Requirements: curl
+
 steps:
   - run:
       name: Install and init the helm client

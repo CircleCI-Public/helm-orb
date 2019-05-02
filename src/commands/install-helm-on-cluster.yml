@@ -3,7 +3,8 @@ description: |
   Note: Parameters like tiller-tls need to be set to
   apply security configurations to the tiller configuration.
 
-  Requirements: kubectl, updated kubeconfig
+  Requirements: kubeconfig should be configured to connect to the cluster.
+  kubectl is required if "enable-cluster-wide-admin-access" is set to true.
 
 parameters:
   tiller-tls:

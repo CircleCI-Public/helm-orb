@@ -49,6 +49,8 @@ workflows:
 
 ## Contributing
 
+Development notes for building, testing and orb publishing are located [here](https://github.com/CircleCI-Public/helm-orb/docs/dev-notes.md).
+
 We welcome [issues](https://github.com/CircleCI-Public/helm-orb/issues) to and [pull requests](https://github.com/CircleCI-Public/helm-orb/pulls) against this repository!
 
 For further questions/comments about this or other orbs, visit [CircleCI's orbs discussion forum](https://discuss.circleci.com/c/orbs).
