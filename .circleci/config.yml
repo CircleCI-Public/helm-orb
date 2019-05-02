@@ -1,0 +1,184 @@
+version: 2.1
+
+integration_test_filters: &integration_test_filters
+  branches:
+    ignore: /.*/
+  tags:
+    only: /(integration|master)-.*/
+
+orb_promotion_filters: &orb_promotion_filters
+  branches:
+    ignore: /.*/
+  tags:
+    only: /^(major|minor|patch)-release-v\d+\.\d+\.\d+$/
+
+orbs:
+  aws-eks: circleci/aws-eks@dev:alpha
+  cli: circleci/circleci-cli@0.1.2
+  helm: sandbox/helm@dev:alpha
+  kubernetes: circleci/kubernetes@0.2.0
+  orb-tools: circleci/orb-tools@7.3.0
+  queue: eddiewebb/queue@1.1.2
+
+jobs:
+  install-helm-on-eks-cluster:
+    executor: aws-eks/python
+    parameters:
+      cluster-name:
+        type: string
+        description: Cluster name
+    steps:
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+          install-kubectl: true
+      - helm/install-helm-on-cluster:
+          enable-cluster-wide-admin-access: true
+  install-helm-chart-on-eks-cluster:
+    executor: aws-eks/python
+    parameters:
+      cluster-name:
+        type: string
+        description: Cluster name
+    steps:
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+          install-kubectl: true
+      - helm/install-helm-chart:
+          chart: stable/grafana
+          release-name: grafana-release
+  delete-helm-release-on-eks-cluster:
+    executor: aws-eks/python
+    parameters:
+      cluster-name:
+        type: string
+        description: Cluster name
+    steps:
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+          install-kubectl: true
+      - helm/delete-helm-release:
+          release-name: grafana-release
+          purge: true
+          timeout: 600
+  pre-orb-promotion-check:
+    executor: aws-eks/python2
+    steps:
+      - checkout
+      - run:
+          name: Check that this is a master branch commit
+          command: |
+            git clone "$CIRCLE_REPOSITORY_URL" repository
+            cd repository
+            git branch --contains ${CIRCLE_SHA1} | grep "master"
+  promote-orb-into-production:
+    parameters:
+      orb-name:
+        type: string
+        description: |
+          Semver-less name of the orb to be promoted into production
+      orb-ref:
+        type: string
+        description: |
+          Version information of the orb to be promoted into production
+    executor: cli/default
+    steps:
+      - checkout
+      - run:
+          name: Promote dev orb to production
+          command: |
+            RELEASE_TYPE=''
+            if [[ "${CIRCLE_TAG}" =~ major-release-* ]]; then
+              RELEASE_TYPE='major'
+            elif [[ "${CIRCLE_TAG}" =~ minor-release-* ]]; then
+              RELEASE_TYPE='minor'
+            elif [[ "${CIRCLE_TAG}" =~ patch-release-* ]]; then
+              RELEASE_TYPE='patch'
+            fi
+            if [ -n "${RELEASE_TYPE}" ]; then
+              circleci orb publish promote \
+              <<parameters.orb-name>>@<<parameters.orb-ref>> \
+              ${RELEASE_TYPE} --token \
+              ${CIRCLE_TOKEN}
+            fi
+workflows:
+  lint_pack-validate_publish-dev:
+    jobs:
+      - orb-tools/lint
+      - orb-tools/pack:
+          requires:
+            - orb-tools/lint
+      - queue/block_workflow:
+          consider-branch: false
+          time: '60'
+          requires:
+            - orb-tools/pack
+      - orb-tools/publish-dev:
+          orb-name: sandbox/helm
+          context: orb-publishing
+          requires:
+            - queue/block_workflow
+      - orb-tools/trigger-integration-workflow:
+          name: trigger-integration-dev
+          ssh-fingerprints: 00:5a:6a:2b:18:ad:a5:ad:0c:7f:40:67:7f:ba:46:4c
+          tag: integration
+          use-git-diff: false
+          static-release-type: patch
+          requires:
+            - orb-tools/publish-dev
+          filters:
+            branches:
+              ignore: master
+      - orb-tools/trigger-integration-workflow:
+          name: trigger-integration-master
+          ssh-fingerprints: 00:5a:6a:2b:18:ad:a5:ad:0c:7f:40:67:7f:ba:46:4c
+          tag: master
+          use-git-diff: false
+          static-release-type: patch
+          requires:
+            - orb-tools/publish-dev
+          filters:
+            branches:
+              only: master
+  integration-tests:
+    jobs:
+      - aws-eks/create-cluster:
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-eks
+          filters: *integration_test_filters
+      - install-helm-on-eks-cluster:
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-eks
+          requires:
+            - aws-eks/create-cluster
+          filters: *integration_test_filters
+      - install-helm-chart-on-eks-cluster:
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-eks
+          requires:
+            - install-helm-on-eks-cluster
+          filters: *integration_test_filters
+      - delete-helm-release-on-eks-cluster:
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-eks
+          requires:
+            - install-helm-chart-on-eks-cluster
+          filters: *integration_test_filters
+      - aws-eks/delete-cluster:
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-eks
+          requires:
+            - delete-helm-release-on-eks-cluster
+          filters: *integration_test_filters
+  # Tag-triggered workflow to promote a dev orb into production.
+  # The tag is expected to have been applied manually.
+  production-orb-publishing:
+    jobs:
+      - pre-orb-promotion-check:
+          filters: *orb_promotion_filters
+      - hold-for-approval:
+          type: approval
+          requires:
+            - pre-orb-promotion-check
+          filters: *orb_promotion_filters
+      - promote-orb-into-production:
+          orb-name: sandbox/helm
+          orb-ref: dev:${CIRCLE_SHA1:0:7}
+          context: orb-publishing
+          requires:
+            - hold-for-approval
+          filters: *orb_promotion_filters

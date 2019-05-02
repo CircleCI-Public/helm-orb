@@ -2,9 +2,11 @@
 
 A CircleCI Orb to simplify deployments to Kubernetes using Helm.
 
-Here are some features that the Helm orb provides:
+Here are the features that the Helm orb provides:
 
-- Installing helm and helm charts (See: `install-helm-client`, `install-helm-on-cluster` and `install-helm-chart`)
+- Installing the helm client (`install-helm-client`)
+- Installing helm on a cluster (`install-helm-on-cluster`)
+- Installing helm charts (`install-helm-chart`) and deleting releases (`delete-helm-release`)
 
 ## Usage
 
@@ -22,7 +24,7 @@ Full usage examples can be found on the Helm orb's page in the orb registry, [he
 version: 2.1
 
 orbs:
-  helm: circleci/helm@0.0.1
+  helm: circleci/helm@0.1.0
   kubernetes: circleci/kubernetes@0.2.0
 
 workflows:
@@ -32,8 +34,6 @@ workflows:
       - helm/install-helm-on-cluster:
           cluster-name: my-helm-demo
           enable-cluster-wide-admin-access: true
-          requires:
-            - azure-aks/create-cluster
       - helm/install-helm-chart:
           cluster-name: my-helm-demo
           chart: stable/grafana
