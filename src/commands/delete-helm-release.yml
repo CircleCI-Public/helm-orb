@@ -1,6 +1,7 @@
 description: |
   Deletes a helm release.
-  Requirements: helm should be installed on the cluster.
+  Requirements: helm should be installed on the cluster
+  and kubeconfig should be configured to connect to the cluster.
 
 parameters:
   release-name:
