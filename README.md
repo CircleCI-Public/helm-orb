@@ -18,7 +18,75 @@ See the [orb registry listing](http://circleci.com/orbs/registry/orb/circleci/he
 
 ## Examples
 
-To be added soon.
+```
+version: 2.1
+
+orbs:
+  aws-eks: circleci/aws-eks@0.1.0
+  helm: circleci/helm@0.1.1
+
+jobs:
+  install-helm-on-cluster:
+    executor: aws-eks/python
+    parameters:
+      cluster-name:
+        type: string
+        description: Cluster name
+    steps:
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+          install-kubectl: true
+      - helm/install-helm-on-cluster:
+          enable-cluster-wide-admin-access: true
+  install-helm-chart:
+    executor: aws-eks/python
+    parameters:
+      cluster-name:
+        type: string
+        description: Cluster name
+    steps:
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+      - helm/install-helm-chart:
+          chart: stable/grafana
+          release-name: grafana-release
+  delete-helm-release:
+    executor: aws-eks/python
+    parameters:
+      cluster-name:
+        type: string
+        description: Cluster name
+    steps:
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+      - helm/delete-helm-release:
+          release-name: grafana-release
+          purge: true
+          timeout: 600
+
+workflows:
+  deployment:
+    jobs:
+      - aws-eks/create-cluster:
+          cluster-name: test-cluster
+      - install-helm-on-cluster:
+          cluster-name: test-cluster
+          requires:
+            - aws-eks/create-cluster
+      - install-helm-chart:
+          cluster-name: test-cluster
+          requires:
+            - install-helm-on-cluster
+      - delete-helm-release:
+          cluster-name: test-cluster
+          requires:
+            - install-helm-chart
+      - aws-eks/delete-cluster:
+          cluster-name: test-cluster
+          wait: true
+          requires:
+            - delete-helm-release
+```
 
 ## Contributing
 
