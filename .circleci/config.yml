@@ -21,6 +21,16 @@ orbs:
   queue: eddiewebb/queue@1.1.2
 
 jobs:
+  helm-client-install-test:
+    executor: aws-eks/python
+    parameters:
+      version:
+        type: string
+        description: version to install
+        default: ""
+    steps:
+      - helm/install-helm-client:
+          version: << parameters.version >>
   install-helm-on-eks-cluster:
     executor: aws-eks/python
     parameters:
@@ -141,6 +151,11 @@ workflows:
               only: master
   integration-tests:
     jobs:
+      - helm-client-install-test:
+          name: helm-client-install-specific-version
+          version: v2.4.0
+      - helm-client-install-test:
+          name: helm-client-install-latest
       - aws-eks/create-cluster:
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-eks
           filters: *integration_test_filters
