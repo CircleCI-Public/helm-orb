@@ -3,6 +3,12 @@ description: |
 
   Requirements: curl
 
+parameters:
+  version:
+    type: string
+    default: ""
+    description: the helm client version to install. e.g. v2.4.0
+
 steps:
   - run:
       name: Install and init the helm client
@@ -11,8 +17,12 @@ steps:
           echo "helm is already installed"
           exit 0
         fi
+        VERSION="<< parameters.version >>"
+        if [ -n "${VERSION}" ]; then
+          set -- "$@" --version "${VERSION}"
+        fi
         INSTALL_SCRIPT="https://raw.githubusercontent.com/helm/helm/master/scripts/get"
         curl "${INSTALL_SCRIPT}" > get_helm.sh
         chmod 700 get_helm.sh
-        ./get_helm.sh
+        ./get_helm.sh "$@"
         helm init --client-only
