@@ -119,7 +119,7 @@ workflows:
             - orb-tools/lint
       - queue/block_workflow:
           consider-branch: false
-          time: '60'
+          time: "60"
           requires:
             - orb-tools/pack
       - orb-tools/publish-dev:
