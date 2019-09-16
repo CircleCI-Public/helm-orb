@@ -120,6 +120,7 @@ parameters:
     type: string
     default: ""
 steps:
+  - install-helm-client
   - run:
       name: Update repository
       command: |
