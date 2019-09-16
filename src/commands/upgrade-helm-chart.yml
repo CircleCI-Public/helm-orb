@@ -73,7 +73,7 @@ parameters:
       This skips running hooks for the command
     type: boolean
     default: false
-  dlevel:
+  devel:
     description: |
       Use development versions, too. Equivalent to version '>0.0.0-0'. If --version is set, this is ignored.
     type: string
@@ -100,7 +100,7 @@ parameters:
     default: false
   values:
     description: |
-      specify values in a YAML file or a URL(can specify multiple)
+      specify values in a YAML file or a URL
     type: string
     default: ""
   version:
@@ -113,14 +113,10 @@ parameters:
       performs pods restart for the resource if applicable
     type: boolean
     default: false
-  set:
+  values-to-override:
     description: |
-      which values you want to update
-    type: string
-    default: ""
-  set-value:
-    description: |
-      the value with which to assign the set param specified
+      Override values in a chart using the --set flag of the helm install
+      command. Format: key1=val1,key2=val2
     type: string
     default: ""
 steps:
@@ -143,14 +139,13 @@ steps:
         TLS_VERIFY="<< parameters.tls-verify >>"
         TILLER_NAMESPACE="<< parameters.tiller-namespace >>"
         NAMESPACE="<< parameters.namespace >>"
-        DLEVEL="<< parameters.dlevel >>"
+        DEVEL="<< parameters.devel >>"
         DRY_RUN="<< parameters.dry-run >>"
         RESET_VALUES="<< parameters.reset-values >>"
         REUSE_VALUES="<< parameters.reuse-values >>"
         VALUES="<< parameters.values >>"
         VERSION="<< parameters.version >>"
-        SET="<< parameters.set >>"
-        SET_VALUE="<< parameters.set-value >>"
+        VALUES_TO_OVERRIDE="<< parameters.values-to-override >>"
         if [ -n "${NAMESPACE}" ]; then
           set -- "$@" --namespace="${NAMESPACE}"
         fi
@@ -187,8 +182,8 @@ steps:
         if [ -n "${TILLER_NAMESPACE}" ]; then
           set -- "$@" --tiller-namespace "${TILLER_NAMESPACE}"
         fi
-        if [ -n "${DLEVEL}" ]; then
-          set -- "$@" --delvel "${DLEVEL}"
+        if [ -n "${DEVEL}" ]; then
+          set -- "$@" --delvel "${DEVEL}"
         fi
         if [ "${DRY_RUN}" == "true" ]; then
           set -- "$@" --dry-run 
@@ -202,10 +197,7 @@ steps:
         if [ -n "${VALUES}" ]; then
           set -- "$@" --values "${VALUES}"
         fi
-        if [ -n "${VERSION}" ]; then
-          set -- "$@" --version "${VERSION}"
-        fi
-        if [ -n "${SET}" ]; then
-          set -- "$@" --set "${SET}"="${SET_VALUE}"
-        fi                
+        if [ -n "${VALUES_TO_OVERRIDE}" ]; then
+                  set -- "$@" --set "${VALUES_TO_OVERRIDE}"
+                fi                
         helm upgrade --install << parameters.release-name >> << parameters.chart >> "$@"
