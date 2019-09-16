@@ -56,6 +56,19 @@ jobs:
       - helm/install-helm-chart:
           chart: stable/grafana
           release-name: grafana-release
+  upgrade-helm-chart-on-eks-cluster:
+    executor: aws-eks/python
+    parameters:
+      cluster-name:
+        type: string
+        description: Cluster name
+    steps:
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+          install-kubectl: true
+      - helm/upgrade-helm-chart:
+          chart: stable/grafana
+          release-name: grafana-release
   delete-helm-release-on-eks-cluster:
     executor: aws-eks/python
     parameters:
@@ -119,7 +132,7 @@ workflows:
             - orb-tools/lint
       - queue/block_workflow:
           consider-branch: false
-          time: '60'
+          time: "60"
           requires:
             - orb-tools/pack
       - orb-tools/publish-dev:
