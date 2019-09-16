@@ -187,18 +187,18 @@ steps:
           set -- "$@" --delvel "${DEVEL}"
         fi
         if [ "${DRY_RUN}" == "true" ]; then
-          set -- "$@" --dry-run 
+          set -- "$@" --dry-run
         fi
         if [ "${RESET_VALUES}" == "true" ]; then
           set -- "$@" --reset_values
         fi
         if [ "${REUSE_VALUES}" == "true" ]; then
-          set -- "$@" --reuse_values 
+          set -- "$@" --reuse_values
         fi
         if [ -n "${VALUES}" ]; then
           set -- "$@" --values "${VALUES}"
         fi
         if [ -n "${VALUES_TO_OVERRIDE}" ]; then
                   set -- "$@" --set "${VALUES_TO_OVERRIDE}"
-                fi                
+                fi
         helm upgrade --install << parameters.release-name >> << parameters.chart >> "$@"
