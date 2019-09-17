@@ -189,6 +189,9 @@ workflows:
           requires:
             - install-helm-chart-on-eks-cluster
           filters: *integration_test_filters
+      - upgrade-helm-chart-on-eks-cluster:
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-eks
+          filters: *integration_test_filters
       - aws-eks/delete-cluster:
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-eks
           wait: true

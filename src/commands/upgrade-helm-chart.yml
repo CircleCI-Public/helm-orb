@@ -115,7 +115,7 @@ parameters:
     default: false
   values-to-override:
     description: |
-      Override values in a chart using the --set flag of the helm install
+      Override values in a chart using the --set flag of the helm upgrade
       command. Format: key1=val1,key2=val2
     type: string
     default: ""
@@ -184,7 +184,7 @@ steps:
           set -- "$@" --tiller-namespace "${TILLER_NAMESPACE}"
         fi
         if [ -n "${DEVEL}" ]; then
-          set -- "$@" --delvel "${DEVEL}"
+          set -- "$@" --devel "${DEVEL}"
         fi
         if [ "${DRY_RUN}" == "true" ]; then
           set -- "$@" --dry-run
@@ -199,6 +199,6 @@ steps:
           set -- "$@" --values "${VALUES}"
         fi
         if [ -n "${VALUES_TO_OVERRIDE}" ]; then
-                  set -- "$@" --set "${VALUES_TO_OVERRIDE}"
-                fi
+          set -- "$@" --set "${VALUES_TO_OVERRIDE}"
+        fi
         helm upgrade --install << parameters.release-name >> << parameters.chart >> "$@"
