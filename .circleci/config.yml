@@ -192,7 +192,7 @@ workflows:
       - delete-helm-release-on-eks-cluster:
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-eks
           requires:
-            - install-helm-chart-on-eks-cluster
+            - upgrade-helm-chart-on-eks-cluster
           filters: *integration_test_filters
       - aws-eks/delete-cluster:
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-eks
