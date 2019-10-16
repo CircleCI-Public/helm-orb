@@ -8,6 +8,13 @@ Here are the features that the Helm orb provides:
 - Installing helm on a cluster (`install-helm-on-cluster`)
 - Installing helm charts (`install-helm-chart`) and deleting releases (`delete-helm-release`)
 
+Table of Contents
+=================
+* [Usage](#usage)
+* [Requirements](#requirements)
+* [Examples](#examples)
+* [Contributing](#contributing)
+
 ## Usage
 
 See the [orb registry listing](http://circleci.com/orbs/registry/orb/circleci/helm) for usage guidelines.
