@@ -1,12 +1,13 @@
 description: |
-  Install the helm client
+  Install the helm client.
+  Defaults to the latest version of Helm 2.
 
   Requirements: curl
 
 parameters:
   version:
     type: string
-    default: ""
+    default: "v2.16.1"
     description: the helm client version to install. e.g. v2.4.0
 
 steps:
