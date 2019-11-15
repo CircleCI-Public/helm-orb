@@ -1,6 +1,6 @@
 description: |
   Install the helm client.
-  Defaults to the latest version of Helm 2. 
+  Defaults to the latest version of Helm 2.
 
   Requirements: curl
 
