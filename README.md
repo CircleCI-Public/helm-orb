@@ -7,6 +7,9 @@ Here are the features that the Helm orb provides:
 - Installing the helm client (`install-helm-client`)
 - Installing helm on a cluster (`install-helm-on-cluster`)
 - Installing helm charts (`install-helm-chart`) and deleting releases (`delete-helm-release`)
+- Upgrading helm charts (`upgrade-helm-chart`)
+- Adding helm chart repositories (`add-helm-repo`)
+- Lints helm charts (`lint-helm-chart`)
 
 Table of Contents
 =================
@@ -33,6 +36,17 @@ orbs:
   helm: circleci/helm@0.1.1
 
 jobs:
+  lint-helm-chart:
+    steps:
+      - helm/lint-helm-chart:
+          chart: ~/project/chart
+
+  add-helm-repo:
+    steps:
+      - helm/add-helm-repo:
+          repo-name: bitnami
+          repo-url: https://charts.bitnami.com/bitnami
+
   install-helm-on-cluster:
     executor: aws-eks/python
     parameters:
@@ -45,6 +59,7 @@ jobs:
           install-kubectl: true
       - helm/install-helm-on-cluster:
           enable-cluster-wide-admin-access: true
+
   install-helm-chart:
     executor: aws-eks/python
     parameters:
@@ -57,6 +72,20 @@ jobs:
       - helm/install-helm-chart:
           chart: stable/grafana
           release-name: grafana-release
+
+  upgrade-helm-chart:
+    executor: aws-eks/python
+    parameters:
+      cluster-name:
+        type: string
+        description: Cluster name
+    steps:
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+      - helm/upgrade-helm-chart:
+          chart: stable/grafana
+          release-name: grafana-release
+
   delete-helm-release:
     executor: aws-eks/python
     parameters:
@@ -74,6 +103,8 @@ jobs:
 workflows:
   deployment:
     jobs:
+      - lint-helm-chart
+      - add-helm-repo
       - aws-eks/create-cluster:
           cluster-name: test-cluster
       - install-helm-on-cluster:
@@ -81,6 +112,10 @@ workflows:
           requires:
             - aws-eks/create-cluster
       - install-helm-chart:
+          cluster-name: test-cluster
+          requires:
+            - install-helm-on-cluster
+      - upgrade-helm-chart:
           cluster-name: test-cluster
           requires:
             - install-helm-on-cluster

@@ -1,0 +1,15 @@
+description: |
+  Lints a Helm chart.
+  Requirements: helm should be installed on the cluster
+
+parameters:
+  chart:
+    description: Path to Helm chart
+    type: string
+
+steps:
+  - install-helm-client
+  - run:
+      name: Lint Helm chart
+      command: |
+        helm lint <<parameters.chart>>

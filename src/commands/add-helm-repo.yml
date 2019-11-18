@@ -1,0 +1,18 @@
+description: |
+  Adds a helm repo.
+  Requirements: helm should be installed on the cluster
+
+parameters:
+  repo-name:
+    description: Chart repository name
+    type: string
+  repo-url:
+    description: Chart repository url
+    type: string
+
+steps:
+  - install-helm-client
+  - run:
+      name: Add repository
+      command: |
+        helm repo add <<parameters.repo-name>> <<parameters.repo-url>>
