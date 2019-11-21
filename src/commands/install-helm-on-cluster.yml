@@ -1,5 +1,7 @@
 description: |
-  Install helm into an existing Kubernetes cluster.
+  Install helm 2 into an existing Kubernetes cluster.
+  (This command is not compatible with helm 3 which does not have a
+  Tiller component)
   Note: Parameters like tiller-tls need to be set to
   apply security configurations to the tiller configuration.
 

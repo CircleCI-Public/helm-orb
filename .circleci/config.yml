@@ -171,6 +171,10 @@ workflows:
       - helm-client-install-test:
           name: helm-client-install-latest
           filters: *integration_test_filters
+      - helm-client-install-test:
+          name: helm-client-install-v3
+          version: v3.0.0
+          filters: *integration_test_filters
       - aws-eks/create-cluster:
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-eks
           filters: *integration_test_filters
