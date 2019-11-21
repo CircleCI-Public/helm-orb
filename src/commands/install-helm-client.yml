@@ -13,7 +13,7 @@ parameters:
 
 steps:
   - run:
-      name: Install and init the helm client
+      name: Install and init the helm client (if necessary)
       command: |
         if which helm > /dev/null; then
           echo "helm is already installed"
