@@ -1,6 +1,7 @@
 description: |
   Install the helm client.
   Defaults to the latest version of Helm 2.
+  To use Helm 3, specify a version e.g. "v3.0.0".
 
   Requirements: curl
 
@@ -19,11 +20,17 @@ steps:
           exit 0
         fi
         VERSION="<< parameters.version >>"
+        IS_VERSION_2="true"
         if [ -n "${VERSION}" ]; then
           set -- "$@" --version "${VERSION}"
+          if [ "${VERSION}" == "${VERSION#v2.}" ]; then
+            IS_VERSION_2="false"
+          fi
         fi
         INSTALL_SCRIPT="https://raw.githubusercontent.com/helm/helm/master/scripts/get"
         curl "${INSTALL_SCRIPT}" > get_helm.sh
         chmod 700 get_helm.sh
         ./get_helm.sh "$@"
-        helm init --client-only
+        if [ "${IS_VERSION_2}" == "true" ]; then
+          helm init --client-only
+        fi
