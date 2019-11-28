@@ -190,10 +190,10 @@ steps:
           set -- "$@" --dry-run
         fi
         if [ "${RESET_VALUES}" == "true" ]; then
-          set -- "$@" --reset_values
+          set -- "$@" --reset-values
         fi
         if [ "${REUSE_VALUES}" == "true" ]; then
-          set -- "$@" --reuse_values
+          set -- "$@" --reuse-values
         fi
         if [ -n "${VALUES}" ]; then
           set -- "$@" --values "${VALUES}"
