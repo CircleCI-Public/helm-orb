@@ -16,11 +16,10 @@ parameters:
     default: false
   timeout:
     description: |
-      Specify time in seconds to wait for any individual Kubernetes operation
-      (like Jobs for hooks)
-      A value of -1 will be ignored.
-    type: integer
-    default: -1
+      Specify time to wait for any individual Kubernetes operation. Must be a Duration
+      string (ex. 600s, 2m, 3h, etc...)
+    type: string
+    default: ""
   namespace:
     description: |
       The kubernetes namespace that should be used.
@@ -78,7 +77,6 @@ steps:
         TLS_HOSTNAME="<< parameters.tls-hostname >>"
         TLS_KEY="<< parameters.tls-key >>"
         TLS_VERIFY="<< parameters.tls-verify >>"
-        TILLER_NAMESPACE="<< parameters.tiller-namespace >>"
         if [ "${PURGE}" == "true" ]; then
           set -- "$@" --purge
         fi
@@ -106,7 +104,4 @@ steps:
         if [ "${TLS_VERIFY}" == "true" ]; then
           set -- "$@" --tls-verify
         fi
-        if [ -n "${TILLER_NAMESPACE}" ]; then
-          set -- "$@" --tiller-namespace "${TILLER_NAMESPACE}"
-        fi
-        helm delete "$@" << parameters.release-name >>
+        helm delete << parameters.release-name >> "$@"

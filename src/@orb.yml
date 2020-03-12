@@ -4,7 +4,7 @@ description: |
   An orb for working with helm for Kubernetes deployments.
 
 display:
-  home_url: https://github.com/CircleCI-Public/helm-orb
+  home_url: https://github.com/STACK-Fintech/helm-orb
 
 orbs:
   kubernetes: circleci/kubernetes@0.2.0

@@ -13,7 +13,7 @@ orb_promotion_filters: &orb_promotion_filters
     only: /^(major|minor|patch)-release-v\d+\.\d+\.\d+$/
 
 orbs:
-  aws-eks: circleci/aws-eks@0.2.1
+  aws-eks: circleci/aws-eks@0.2.6
   cli: circleci/circleci-cli@0.1.2
   helm: stack-fintech/helm@dev:alpha
   kubernetes: circleci/kubernetes@0.2.0
@@ -28,61 +28,86 @@ jobs:
         type: string
         description: version to install
         default: ""
+      helm-namespace:
+        type: string
+        description: Namespace for Helm config/Tiller
     steps:
       - helm/install-helm-client:
           version: << parameters.version >>
-  install-helm-on-eks-cluster:
+  create-namespace-on-eks-cluster:
     executor: aws-eks/python
     parameters:
       cluster-name:
         type: string
         description: Cluster name
+      helm-namespace:
+        type: string
+        description: Namespace for Helm config/Tiller
     steps:
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: << parameters.cluster-name >>
+          aws-region: ${AWS_REGION}
           install-kubectl: true
-      - helm/install-helm-on-cluster:
-          enable-cluster-wide-admin-access: true
+      - run:
+          name: Create namespace
+          command: kubectl create ns << parameters.helm-namespace >>
   install-helm-chart-on-eks-cluster:
     executor: aws-eks/python
     parameters:
       cluster-name:
         type: string
         description: Cluster name
+      helm-namespace:
+        type: string
+        description: Namespace for Helm config/Tiller
     steps:
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: << parameters.cluster-name >>
+          aws-region: ${AWS_REGION}
           install-kubectl: true
       - helm/install-helm-chart:
           chart: stable/grafana
           release-name: grafana-release
+          namespace: << parameters.helm-namespace >>
   upgrade-helm-chart-on-eks-cluster:
     executor: aws-eks/python
     parameters:
       cluster-name:
         type: string
         description: Cluster name
+      helm-namespace:
+        type: string
+        description: Namespace for Helm config/Tiller
     steps:
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: << parameters.cluster-name >>
+          aws-region: ${AWS_REGION}
           install-kubectl: true
       - helm/upgrade-helm-chart:
           chart: stable/grafana
           release-name: grafana-release
+          namespace: << parameters.helm-namespace >>
   delete-helm-release-on-eks-cluster:
     executor: aws-eks/python
     parameters:
       cluster-name:
         type: string
         description: Cluster name
+      helm-namespace:
+        type: string
+        description: Namespace for Helm config/Tiller
     steps:
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: << parameters.cluster-name >>
+          aws-region: ${AWS_REGION}
           install-kubectl: true
       - helm/delete-helm-release:
           release-name: grafana-release
-          purge: true
-          timeout: 600
+          namespace: << parameters.helm-namespace >>
+          timeout: 600s
+      - run:
+          name: Cleanup test namespace
+          command: kubectl delete ns << parameters.helm-namespace >>
   pre-orb-promotion-check:
     executor: aws-eks/python2
     steps:
@@ -166,43 +191,43 @@ workflows:
     jobs:
       - helm-client-install-test:
           name: helm-client-install-specific-version
+          helm-namespace: helm-orb
           version: v2.4.0
           filters: *integration_test_filters
       - helm-client-install-test:
           name: helm-client-install-latest
+          helm-namespace: helm-orb
           filters: *integration_test_filters
       - helm-client-install-test:
           name: helm-client-install-v3
+          helm-namespace: helm-orb
           version: v3.0.0
           filters: *integration_test_filters
-      - aws-eks/create-cluster:
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-eks
-          filters: *integration_test_filters
-      - install-helm-on-eks-cluster:
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-eks
-          requires:
-            - aws-eks/create-cluster
+      - create-namespace-on-eks-cluster:
+          context: AWS
+          cluster-name: development
+          helm-namespace: helm-orb
           filters: *integration_test_filters
       - install-helm-chart-on-eks-cluster:
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-eks
+          context: AWS
+          cluster-name: development
+          helm-namespace: helm-orb
           requires:
-            - install-helm-on-eks-cluster
+            - create-namespace-on-eks-cluster
           filters: *integration_test_filters
       - upgrade-helm-chart-on-eks-cluster:
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-eks
+          context: AWS
+          cluster-name: development
+          helm-namespace: helm-orb
           requires:
             - install-helm-chart-on-eks-cluster
           filters: *integration_test_filters
       - delete-helm-release-on-eks-cluster:
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-eks
+          context: AWS
+          cluster-name: development
+          helm-namespace: helm-orb
           requires:
             - upgrade-helm-chart-on-eks-cluster
-          filters: *integration_test_filters
-      - aws-eks/delete-cluster:
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-eks
-          wait: true
-          requires:
-            - delete-helm-release-on-eks-cluster
           filters: *integration_test_filters
   # Tag-triggered workflow to promote a dev orb into production.
   # The tag is expected to have been applied manually.

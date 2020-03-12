@@ -8,8 +8,8 @@ description: |
 parameters:
   version:
     type: string
-    default: "v2.16.1"
-    description: the helm client version to install. e.g. v2.4.0
+    default: "v3.1.1"
+    description: the helm client version to install. e.g. v3.1.1
 
 steps:
   - run:
@@ -20,17 +20,24 @@ steps:
           exit 0
         fi
         VERSION="<< parameters.version >>"
-        IS_VERSION_2="true"
+        IS_VERSION_3="true"
         if [ -n "${VERSION}" ]; then
           set -- "$@" --version "${VERSION}"
-          if [ "${VERSION}" == "${VERSION#v2.}" ]; then
-            IS_VERSION_2="false"
+          if [ "${VERSION}" == "${VERSION#v3.}" ]; then
+            IS_VERSION_3="false"
           fi
         fi
-        INSTALL_SCRIPT="https://raw.githubusercontent.com/helm/helm/master/scripts/get"
+        if [ "${IS_VERSION_3}" == "true" ]; then
+          INSTALL_SCRIPT="https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3"
+        else
+          INSTALL_SCRIPT="https://raw.githubusercontent.com/helm/helm/master/scripts/get"
+        fi
         curl "${INSTALL_SCRIPT}" > get_helm.sh
         chmod 700 get_helm.sh
         ./get_helm.sh "$@"
-        if [ "${IS_VERSION_2}" == "true" ]; then
+        if [ "${IS_VERSION_3}" == "false" ]; then
           helm init --client-only
+        else
+          echo "Adding stable repository as a default"
+          helm repo add stable https://kubernetes-charts.storage.googleapis.com/
         fi

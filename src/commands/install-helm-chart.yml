@@ -89,9 +89,6 @@ steps:
         TLS_VERIFY="<< parameters.tls-verify >>"
         TILLER_NAMESPACE="<< parameters.tiller-namespace >>"
         WAIT="<< parameters.wait >>"
-        if [ -n "${RELEASE_NAME}" ]; then
-          set -- "$@" --name "${RELEASE_NAME}"
-        fi
         if [ -n "${VALUES_TO_OVERRIDE}" ]; then
           set -- "$@" --set "${VALUES_TO_OVERRIDE}"
         fi
@@ -116,10 +113,7 @@ steps:
         if [ "${TLS_VERIFY}" == "true" ]; then
           set -- "$@" --tls-verify
         fi
-        if [ -n "${TILLER_NAMESPACE}" ]; then
-          set -- "$@" --tiller-namespace "${TILLER_NAMESPACE}"
-        fi
         if [ "${WAIT}" == "true" ]; then
           set -- "$@" --wait
         fi
-        helm install << parameters.chart >> "$@"
+        helm install << parameters.release-name >> << parameters.chart >> "$@"
