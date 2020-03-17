@@ -68,6 +68,11 @@ parameters:
       Whether to wait for the installation to be complete
     type: boolean
     default: true
+  config:
+    description: |
+      An optional path to an environment file that overrides the default values for the chart.
+    type: string
+    default: ""
 
 steps:
   - install-helm-client
@@ -89,6 +94,7 @@ steps:
         TLS_VERIFY="<< parameters.tls-verify >>"
         TILLER_NAMESPACE="<< parameters.tiller-namespace >>"
         WAIT="<< parameters.wait >>"
+        CONFIG="<< parameters.config >>"
         if [ -n "${VALUES_TO_OVERRIDE}" ]; then
           set -- "$@" --set "${VALUES_TO_OVERRIDE}"
         fi
@@ -115,5 +121,8 @@ steps:
         fi
         if [ "${WAIT}" == "true" ]; then
           set -- "$@" --wait
+        fi
+        if [ -n "${CONFIG}" ]; then
+          set -- "$@" -f "${CONFIG}"
         fi
         helm install << parameters.release-name >> << parameters.chart >> "$@"

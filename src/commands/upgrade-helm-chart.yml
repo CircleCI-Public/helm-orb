@@ -27,6 +27,11 @@ parameters:
       Whether to wait for the installation to be complete.
     type: boolean
     default: true
+  config:
+    description: |
+      An optional path to an environment file that overrides the default values for the chart.
+    type: string
+    default: ""
   timeout:
     description: |
       If timeout is reached, the release will be marked as FAILED.
@@ -130,6 +135,7 @@ steps:
       command: |
         TIMEOUT="<< parameters.timeout >>"
         WAIT="<< parameters.wait >>"
+        CONFIG="<< parameters.config >>"
         NO_HOOKS="<< parameters.no-hooks >>"
         RECREATE_PODS="<< parameters.recreate-pods >>"
         TLS="<< parameters.tls >>"
@@ -161,6 +167,9 @@ steps:
         fi
         if [ "${WAIT}" == "true" ]; then
           set -- "$@" --wait
+        fi
+        if [ -n "${CONFIG}" ]; then
+          set -- "$@" -f "${CONFIG}"
         fi
         if [ "${TLS}" == "true" ]; then
           set -- "$@" --tls
