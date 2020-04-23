@@ -32,7 +32,7 @@ steps:
         else
           INSTALL_SCRIPT="https://raw.githubusercontent.com/helm/helm/master/scripts/get"
         fi
-        curl "${INSTALL_SCRIPT}" > get_helm.sh
+        curl -L "${INSTALL_SCRIPT}" > get_helm.sh
         chmod 700 get_helm.sh
         ./get_helm.sh "$@"
         if [ "${IS_VERSION_3}" == "false" ]; then
