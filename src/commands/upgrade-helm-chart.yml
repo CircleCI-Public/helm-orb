@@ -119,12 +119,20 @@ parameters:
       command. Format: key1=val1,key2=val2
     type: string
     default: ""
+  update-repositories:
+    description: |
+      Choose to update repositories by running helm repo update.
+    type: boolean
+    default: true
 steps:
   - install-helm-client
-  - run:
-      name: Update repository
-      command: |
-        helm repo update
+  - when:
+    condition: << parameters.update-repositories >>
+    steps:
+      - run:
+          name: Update repositories
+          command: |
+            helm repo update
   - run:
       name: Upgrade or install chart
       command: |
