@@ -133,7 +133,7 @@ steps:
           set -- "$@" --wait
         fi
 
-        VERSION_2_MATCH="$(helm version --short -c | grep 'Client: v2')"
+        VERSION_2_MATCH="$(helm version --short -c | grep 'Client: v2' || true)"
         if [ -n "${VERSION_2_MATCH}" ]; then
           if [ -n "${RELEASE_NAME}" ]; then
             set -- "$@" --name "${RELEASE_NAME}"
