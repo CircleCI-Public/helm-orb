@@ -62,9 +62,14 @@ parameters:
       Specify the namespace of Tiller
     type: string
     default: ""
+  helm-version:
+    type: string
+    default: "v2.16.1"
+    description: the helm client version to install. e.g. v2.4.0
 
 steps:
-  - install-helm-client
+  - install-helm-client:
+      version: << parameters.helm-version >>
   - run:
       name: Delete helm release
       command: |

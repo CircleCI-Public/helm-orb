@@ -73,16 +73,21 @@ parameters:
       Choose to update repositories by running helm repo update.
     type: boolean
     default: true
+  helm-version:
+    type: string
+    default: "v2.16.1"
+    description: the helm client version to install. e.g. v2.4.0
 
 steps:
-  - install-helm-client
+  - install-helm-client:
+      version: << parameters.helm-version >>
   - when:
-    condition: << parameters.update-repositories >>
-    steps:
-      - run:
-          name: Update repositories
-          command: |
-            helm repo update
+      condition: << parameters.update-repositories >>
+      steps:
+        - run:
+            name: Update repositories
+            command: |
+              helm repo update
   - run:
       name: Install chart
       command: |

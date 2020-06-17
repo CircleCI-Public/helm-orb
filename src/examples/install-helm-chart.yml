@@ -1,5 +1,6 @@
 description: |
-  Demonstrate installing a helm chart on a Kubernetes cluster.
+  Demonstrate installing a helm chart on a Kubernetes cluster, with
+  helm 2.
 
 usage:
   version: 2.1
