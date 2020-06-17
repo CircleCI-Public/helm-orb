@@ -33,4 +33,6 @@ steps:
         ./get_helm.sh "$@"
         if [ "${IS_VERSION_2}" == "true" ]; then
           helm init --client-only
+        else
+          helm repo add stable https://kubernetes-charts.storage.googleapis.com
         fi

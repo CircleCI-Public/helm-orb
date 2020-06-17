@@ -102,9 +102,6 @@ steps:
         TLS_VERIFY="<< parameters.tls-verify >>"
         TILLER_NAMESPACE="<< parameters.tiller-namespace >>"
         WAIT="<< parameters.wait >>"
-        if [ -n "${RELEASE_NAME}" ]; then
-          set -- "$@" --name "${RELEASE_NAME}"
-        fi
         if [ -n "${VALUES_TO_OVERRIDE}" ]; then
           set -- "$@" --set "${VALUES_TO_OVERRIDE}"
         fi
@@ -135,4 +132,13 @@ steps:
         if [ "${WAIT}" == "true" ]; then
           set -- "$@" --wait
         fi
-        helm install << parameters.chart >> "$@"
+
+        VERSION_2_MATCH="$(helm version --short -c | grep 'Client: v2')"
+        if [ -n "${VERSION_2_MATCH}" ]; then
+          if [ -n "${RELEASE_NAME}" ]; then
+            set -- "$@" --name "${RELEASE_NAME}"
+          fi
+          helm install << parameters.chart >> "$@"
+        else
+          helm install "${RELEASE_NAME}" << parameters.chart >> "$@"
+        fi

@@ -224,7 +224,6 @@ workflows:
       - install-helm-chart-on-eks-cluster:
           name: install-helm-chart-on-eks-cluster-helm3
           helm-version: v3.0.0
-          update-repositories: false
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm3-eks
           requires:
             - create-cluster-helm3
