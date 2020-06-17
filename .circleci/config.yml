@@ -53,6 +53,11 @@ jobs:
         type: string
         default: "v2.16.1"
         description: the helm client version to install. e.g. v2.4.0
+      update-repositories:
+        description: |
+          Choose to update repositories by running helm repo update.
+        type: boolean
+        default: true
     steps:
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: << parameters.cluster-name >>
@@ -61,6 +66,7 @@ jobs:
           chart: stable/grafana
           release-name: grafana-release
           helm-version: << parameters.helm-version >>
+          update-repositories: << parameters.update-repositories >>
   upgrade-helm-chart-on-eks-cluster:
     executor: aws-eks/python
     parameters:
@@ -71,6 +77,11 @@ jobs:
         type: string
         default: "v2.16.1"
         description: the helm client version to install. e.g. v2.4.0
+      update-repositories:
+        description: |
+          Choose to update repositories by running helm repo update.
+        type: boolean
+        default: true
     steps:
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: << parameters.cluster-name >>
@@ -79,6 +90,7 @@ jobs:
           chart: stable/grafana
           release-name: grafana-release
           helm-version: << parameters.helm-version >>
+          update-repositories: << parameters.update-repositories >>
   delete-helm-release-on-eks-cluster:
     executor: aws-eks/python
     parameters:
@@ -212,6 +224,7 @@ workflows:
       - install-helm-chart-on-eks-cluster:
           name: install-helm-chart-on-eks-cluster-helm3
           helm-version: v3.0.0
+          update-repositories: false
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm3-eks
           requires:
             - create-cluster-helm3
@@ -225,6 +238,7 @@ workflows:
       - upgrade-helm-chart-on-eks-cluster:
           name: upgrade-helm-chart-on-eks-cluster-helm3
           helm-version: v3.0.0
+          update-repositories: false
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm3-eks
           requires:
             - install-helm-chart-on-eks-cluster-helm3
