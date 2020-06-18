@@ -68,13 +68,32 @@ parameters:
       Whether to wait for the installation to be complete
     type: boolean
     default: true
+  update-repositories:
+    description: |
+      Choose to update repositories by running helm repo update.
+    type: boolean
+    default: true
+  helm-version:
+    type: string
+    default: "v2.16.9"
+    description: the helm client version to install. e.g. v2.4.0
+  no-output-timeout:
+    description: |
+      Elapsed time that the helm command can run on CircleCI without output.
+      The string is a decimal with unit suffix, such as “20m”, “1.25h”, “5s”
+    type: string
+    default: "30m"
 
 steps:
-  - install-helm-client
-  - run:
-      name: Update repository
-      command: |
-        helm repo update
+  - install-helm-client:
+      version: << parameters.helm-version >>
+  - when:
+      condition: << parameters.update-repositories >>
+      steps:
+        - run:
+            name: Update repositories
+            command: |
+              helm repo update
   - run:
       name: Install chart
       command: |
@@ -89,9 +108,6 @@ steps:
         TLS_VERIFY="<< parameters.tls-verify >>"
         TILLER_NAMESPACE="<< parameters.tiller-namespace >>"
         WAIT="<< parameters.wait >>"
-        if [ -n "${RELEASE_NAME}" ]; then
-          set -- "$@" --name "${RELEASE_NAME}"
-        fi
         if [ -n "${VALUES_TO_OVERRIDE}" ]; then
           set -- "$@" --set "${VALUES_TO_OVERRIDE}"
         fi
@@ -122,4 +138,19 @@ steps:
         if [ "${WAIT}" == "true" ]; then
           set -- "$@" --wait
         fi
-        helm install << parameters.chart >> "$@"
+
+        VERSION_2_MATCH="$(helm version --short -c | grep 'Client: v2' || true)"
+        if [ -n "${VERSION_2_MATCH}" ]; then
+          if [ -n "${RELEASE_NAME}" ]; then
+            set -- "$@" --name "${RELEASE_NAME}"
+          fi
+          helm install << parameters.chart >> "$@"
+        else
+          if [ -n "${RELEASE_NAME}" ]; then
+            helm install "${RELEASE_NAME}" << parameters.chart >> "$@"
+          else
+            set -- "$@" --generate-name
+            helm install << parameters.chart >> "$@"
+          fi
+        fi
+      no_output_timeout: << parameters.no-output-timeout >>

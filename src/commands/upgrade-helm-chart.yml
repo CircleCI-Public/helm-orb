@@ -119,12 +119,31 @@ parameters:
       command. Format: key1=val1,key2=val2
     type: string
     default: ""
+  update-repositories:
+    description: |
+      Choose to update repositories by running helm repo update.
+    type: boolean
+    default: true
+  helm-version:
+    type: string
+    default: "v2.16.9"
+    description: the helm client version to install. e.g. v2.4.0
+  no-output-timeout:
+    description: |
+      Elapsed time that the helm command can run on CircleCI without output.
+      The string is a decimal with unit suffix, such as “20m”, “1.25h”, “5s”
+    type: string
+    default: "30m"
 steps:
-  - install-helm-client
-  - run:
-      name: Update repository
-      command: |
-        helm repo update
+  - install-helm-client:
+      version: << parameters.helm-version >>
+  - when:
+      condition: << parameters.update-repositories >>
+      steps:
+        - run:
+            name: Update repositories
+            command: |
+              helm repo update
   - run:
       name: Upgrade or install chart
       command: |
@@ -202,3 +221,4 @@ steps:
           set -- "$@" --set "${VALUES_TO_OVERRIDE}"
         fi
         helm upgrade --install << parameters.release-name >> << parameters.chart >> "$@"
+      no_output_timeout: << parameters.no-output-timeout >>
