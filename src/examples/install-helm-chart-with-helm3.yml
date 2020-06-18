@@ -20,6 +20,7 @@ usage:
         - aws-eks/update-kubeconfig-with-authenticator:
             cluster-name: << parameters.cluster-name >>
         - helm/install-helm-chart:
+            helm-version: v3.0.0
             chart: stable/grafana
             release-name: grafana-release
     delete-helm-release:
@@ -32,6 +33,7 @@ usage:
         - aws-eks/update-kubeconfig-with-authenticator:
             cluster-name: << parameters.cluster-name >>
         - helm/delete-helm-release:
+            helm-version: v3.0.0
             release-name: grafana-release
             timeout: 600s
 
