@@ -8,7 +8,7 @@ description: |
 parameters:
   version:
     type: string
-    default: "v2.16.1"
+    default: "v2.16.9"
     description: the helm client version to install. e.g. v2.4.0
 
 steps:
