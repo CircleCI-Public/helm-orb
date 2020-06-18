@@ -23,11 +23,16 @@ parameters:
     default: false
   timeout:
     description: |
-      Specify time in seconds to wait for any individual Kubernetes operation
-      (like Jobs for hooks)
-      A value of -1 will be ignored.
-    type: integer
-    default: -1
+      Specify a timeout value that will be passed as a --timeout argument
+      to the helm command. For helm 3, the unit of the duration must
+      be specified e.g. '300s'.
+    type: string
+    default: ""
+  timeout:
+    description: |
+      If timeout is reached, the release will be marked as FAILED.
+    type: string
+    default: ""
   namespace:
     description: |
       The kubernetes namespace that should be used.
@@ -99,7 +104,7 @@ steps:
         TLS_VERIFY="<< parameters.tls-verify >>"
         TILLER_NAMESPACE="<< parameters.tiller-namespace >>"
 
-        if [ "${TIMEOUT}" != "-1" ]; then
+        if [ -n "${TIMEOUT}" ]; then
           set -- "$@" --timeout="${TIMEOUT}"
         fi
         if [ -n "${NAMESPACE}" ]; then

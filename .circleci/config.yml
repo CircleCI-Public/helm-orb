@@ -106,6 +106,9 @@ jobs:
         type: string
         default: "v2.16.1"
         description: the helm client version to install. e.g. v2.4.0
+      timeout:
+        type: string
+        default: ""
     steps:
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: << parameters.cluster-name >>
@@ -113,7 +116,7 @@ jobs:
       - helm/delete-helm-release:
           release-name: grafana-release
           purge: true
-          timeout: 600
+          timeout: << parameters.timeout >>
           helm-version: << parameters.helm-version >>
   pre-orb-promotion-check:
     executor: aws-eks/python2
@@ -271,6 +274,15 @@ workflows:
           requires:
             - delete-helm-release-on-eks-cluster-helm3
           filters: *integration_test_filters
+      - delete-helm-release-on-eks-cluster:
+          name: delete-helm-release-on-eks-cluster-again-helm3
+          helm-version: v3.0.0
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm3-eks
+          # test timeout
+          timeout: "600s"
+          requires:
+            - reinstall-helm-chart-on-eks-cluster-helm3
+          filters: *integration_test_filters
       - aws-eks/delete-cluster:
           name: delete-cluster-helm2
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-eks
@@ -283,7 +295,7 @@ workflows:
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm3-eks
           wait: true
           requires:
-            - reinstall-helm-chart-on-eks-cluster-helm3
+            - delete-helm-release-on-eks-cluster-again-helm3
           filters: *integration_test_filters
   # Tag-triggered workflow to promote a dev orb into production.
   # The tag is expected to have been applied manually.
