@@ -28,11 +28,6 @@ parameters:
       be specified e.g. '300s'.
     type: string
     default: ""
-  timeout:
-    description: |
-      If timeout is reached, the release will be marked as FAILED.
-    type: string
-    default: ""
   namespace:
     description: |
       The kubernetes namespace that should be used.
