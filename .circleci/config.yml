@@ -46,6 +46,9 @@ jobs:
   install-helm-chart-on-eks-cluster:
     executor: aws-eks/python
     parameters:
+      release-name:
+        type: string
+        default: "grafana-release"
       cluster-name:
         type: string
         description: Cluster name
@@ -91,6 +94,8 @@ jobs:
           release-name: grafana-release
           helm-version: << parameters.helm-version >>
           update-repositories: << parameters.update-repositories >>
+          # test specifying no-output-timeout
+          no-output-timeout: 25m
   delete-helm-release-on-eks-cluster:
     executor: aws-eks/python
     parameters:
@@ -224,6 +229,8 @@ workflows:
       - install-helm-chart-on-eks-cluster:
           name: install-helm-chart-on-eks-cluster-helm3
           helm-version: v3.0.0
+          # test repo update
+          update-repositories: true
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm3-eks
           requires:
             - create-cluster-helm3
@@ -255,6 +262,15 @@ workflows:
           requires:
             - upgrade-helm-chart-on-eks-cluster-helm3
           filters: *integration_test_filters
+      - install-helm-chart-on-eks-cluster:
+          name: reinstall-helm-chart-on-eks-cluster-helm3
+          helm-version: v3.0.0
+          # Test auto-generated release name
+          release-name: ""
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm3-eks
+          requires:
+            - delete-helm-release-on-eks-cluster-helm3
+          filters: *integration_test_filters
       - aws-eks/delete-cluster:
           name: delete-cluster-helm2
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-eks
@@ -267,7 +283,7 @@ workflows:
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm3-eks
           wait: true
           requires:
-            - delete-helm-release-on-eks-cluster-helm3
+            - reinstall-helm-chart-on-eks-cluster-helm3
           filters: *integration_test_filters
   # Tag-triggered workflow to promote a dev orb into production.
   # The tag is expected to have been applied manually.

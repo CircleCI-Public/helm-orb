@@ -128,6 +128,12 @@ parameters:
     type: string
     default: "v2.16.1"
     description: the helm client version to install. e.g. v2.4.0
+  no-output-timeout:
+    description: |
+      Elapsed time that the helm command can run on CircleCI without output.
+      The string is a decimal with unit suffix, such as “20m”, “1.25h”, “5s”
+    type: string
+    default: "30m"
 steps:
   - install-helm-client:
       version: << parameters.helm-version >>
@@ -215,3 +221,4 @@ steps:
           set -- "$@" --set "${VALUES_TO_OVERRIDE}"
         fi
         helm upgrade --install << parameters.release-name >> << parameters.chart >> "$@"
+      no_output_timeout: << parameters.no-output-timeout >>
