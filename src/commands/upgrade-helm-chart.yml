@@ -220,5 +220,8 @@ steps:
         if [ -n "${VALUES_TO_OVERRIDE}" ]; then
           set -- "$@" --set "${VALUES_TO_OVERRIDE}"
         fi
+        if [ -n "${VERSION}" ]; then
+          set -- "$@" --version="${VERSION}"
+        fi
         helm upgrade --install << parameters.release-name >> << parameters.chart >> "$@"
       no_output_timeout: << parameters.no-output-timeout >>
