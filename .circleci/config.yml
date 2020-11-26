@@ -48,7 +48,7 @@ jobs:
     parameters:
       release-name:
         type: string
-        default: "grafana-release"
+        default: "prometheus-release"
       cluster-name:
         type: string
         description: Cluster name
@@ -65,9 +65,13 @@ jobs:
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: << parameters.cluster-name >>
           install-kubectl: true
+      - run:
+          name: Install cncf stable repo
+          command: |
+            helm repo add stable http://cncf.gitlab.io/stable
       - helm/install-helm-chart:
-          chart: stable/grafana
-          release-name: grafana-release
+          chart: stable/prometheus
+          release-name: prometheus-release
           helm-version: << parameters.helm-version >>
           update-repositories: << parameters.update-repositories >>
   upgrade-helm-chart-on-eks-cluster:
@@ -89,9 +93,13 @@ jobs:
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: << parameters.cluster-name >>
           install-kubectl: true
+      - run:
+          name: Install cncf stable repo
+          command: |
+            helm repo add stable http://cncf.gitlab.io/stable
       - helm/upgrade-helm-chart:
-          chart: stable/grafana
-          release-name: grafana-release
+          chart: stable/prometheus
+          release-name: prometheus-release
           helm-version: << parameters.helm-version >>
           update-repositories: << parameters.update-repositories >>
           # test specifying no-output-timeout
@@ -113,8 +121,12 @@ jobs:
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: << parameters.cluster-name >>
           install-kubectl: true
+      - run:
+          name: Install cncf stable repo
+          command: |
+            helm repo add stable http://cncf.gitlab.io/stable
       - helm/delete-helm-release:
-          release-name: grafana-release
+          release-name: prometheus-release
           purge: true
           timeout: << parameters.timeout >>
           helm-version: << parameters.helm-version >>
