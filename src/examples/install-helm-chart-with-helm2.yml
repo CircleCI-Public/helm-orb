@@ -31,9 +31,15 @@ usage:
       steps:
         - aws-eks/update-kubeconfig-with-authenticator:
             cluster-name: << parameters.cluster-name >>
+        - helm/install-helm-client:
+            version: v2.16.9
+        - run:
+            name: Add cncf stable repo
+            command: |
+              helm repo add stable http://cncf.gitlab.io/stable
         - helm/install-helm-chart:
-            chart: stable/grafana
-            release-name: grafana-release
+            chart: stable/prometheus
+            release-name: prometheus-release
     delete-helm-release:
       executor: aws-eks/python
       parameters:
@@ -43,8 +49,14 @@ usage:
       steps:
         - aws-eks/update-kubeconfig-with-authenticator:
             cluster-name: << parameters.cluster-name >>
+        - helm/install-helm-client:
+            version: v2.16.9
+        - run:
+            name: Add cncf stable repo
+            command: |
+              helm repo add stable http://cncf.gitlab.io/stable
         - helm/delete-helm-release:
-            release-name: grafana-release
+            release-name: prometheus-release
             purge: true
             timeout: 600
 
