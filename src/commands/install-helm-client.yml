@@ -28,6 +28,10 @@ steps:
           fi
         fi
         INSTALL_SCRIPT="https://raw.githubusercontent.com/helm/helm/master/scripts/get"
+        if [ "${IS_VERSION_2}" == "false" ]; then
+          INSTALL_SCRIPT="https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3"
+        fi
+
         curl "${INSTALL_SCRIPT}" > get_helm.sh
         chmod 700 get_helm.sh
         ./get_helm.sh "$@"
