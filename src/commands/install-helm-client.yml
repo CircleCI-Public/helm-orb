@@ -8,8 +8,8 @@ description: |
 parameters:
   version:
     type: string
-    default: "v3.1.1"
-    description: the helm client version to install. e.g. v3.1.1
+    default: "v3.4.2"
+    description: the helm client version to install. e.g. v3.4.2
 
 steps:
   - run:
