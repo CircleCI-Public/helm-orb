@@ -35,9 +35,3 @@ steps:
         curl -L "${INSTALL_SCRIPT}" > get_helm.sh
         chmod 700 get_helm.sh
         ./get_helm.sh "$@"
-        if [ "${IS_VERSION_3}" == "false" ]; then
-          helm init --client-only
-        else
-          echo "Adding stable repository as a default"
-          helm repo add stable https://kubernetes-charts.storage.googleapis.com/
-        fi
