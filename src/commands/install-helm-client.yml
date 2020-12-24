@@ -10,6 +10,10 @@ parameters:
     type: string
     default: "v2.16.9"
     description: the helm client version to install. e.g. v2.4.0
+  stable-repo-url:
+    type: string
+    default: "https://charts.helm.sh/stable"
+    description: the helm stable repository url to use.
 
 steps:
   - run:
@@ -35,8 +39,9 @@ steps:
         curl "${INSTALL_SCRIPT}" > get_helm.sh
         chmod 700 get_helm.sh
         ./get_helm.sh "$@"
+        STABLE_REPO_URL="<< parameters.stable-repo-url >>"
         if [ "${IS_VERSION_2}" == "true" ]; then
-          helm init --client-only --stable-repo-url https://charts.helm.sh/stable
+          helm init --client-only --stable-repo-url "${STABLE_REPO_URL}"
         else
-          helm repo add stable https://charts.helm.sh/stable
+          helm repo add stable "${STABLE_REPO_URL}"
         fi
