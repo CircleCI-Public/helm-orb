@@ -1,24 +1,25 @@
 version: 2.1
 
-integration_test_filters: &integration_test_filters
-  branches:
-    ignore: /.*/
-  tags:
-    only: /(integration|master)-.*/
-
-orb_promotion_filters: &orb_promotion_filters
-  branches:
-    ignore: /.*/
-  tags:
-    only: /^(major|minor|patch)-release-v\d+\.\d+\.\d+$/
-
 orbs:
   aws-eks: circleci/aws-eks@0.2.1
   cli: circleci/circleci-cli@0.1.2
-  helm: circleci/helm@dev:alpha
+  helm: circleci/helm@<<pipeline.parameters.dev-orb-version>>
   kubernetes: circleci/kubernetes@0.2.0
-  orb-tools: circleci/orb-tools@7.3.0
+  orb-tools: circleci/orb-tools@10
   queue: eddiewebb/queue@1.1.2
+
+parameters:
+  run-integration-tests:
+    description: An internal flag to prevent integration test from running before a development version has been created.
+    type: boolean
+    default: false
+  dev-orb-version:
+    description: >
+      The development version of the orb to test.
+      This value is automatically adjusted by the "trigger-integration-tests-workflow" job to correspond with the specific version created by the commit and should not be edited.
+      A "dev:alpha" version must exist for the initial pipeline run.
+    type: string
+    default: "dev:alpha"
 
 jobs:
   helm-client-install-test:
@@ -136,46 +137,7 @@ jobs:
           purge: true
           timeout: << parameters.timeout >>
           helm-version: << parameters.helm-version >>
-  pre-orb-promotion-check:
-    executor: aws-eks/python2
-    steps:
-      - checkout
-      - run:
-          name: Check that this is a master branch commit
-          command: |
-            git clone "$CIRCLE_REPOSITORY_URL" repository
-            cd repository
-            git branch --contains ${CIRCLE_SHA1} | grep "master"
-  promote-orb-into-production:
-    parameters:
-      orb-name:
-        type: string
-        description: |
-          Semver-less name of the orb to be promoted into production
-      orb-ref:
-        type: string
-        description: |
-          Version information of the orb to be promoted into production
-    executor: cli/default
-    steps:
-      - checkout
-      - run:
-          name: Promote dev orb to production
-          command: |
-            RELEASE_TYPE=''
-            if [[ "${CIRCLE_TAG}" =~ major-release-* ]]; then
-              RELEASE_TYPE='major'
-            elif [[ "${CIRCLE_TAG}" =~ minor-release-* ]]; then
-              RELEASE_TYPE='minor'
-            elif [[ "${CIRCLE_TAG}" =~ patch-release-* ]]; then
-              RELEASE_TYPE='patch'
-            fi
-            if [ -n "${RELEASE_TYPE}" ]; then
-              circleci orb publish promote \
-              <<parameters.orb-name>>@<<parameters.orb-ref>> \
-              ${RELEASE_TYPE} --token \
-              ${CIRCLE_TOKEN}
-            fi
+
 workflows:
   lint_pack-validate_publish-dev:
     jobs:
@@ -183,70 +145,52 @@ workflows:
       - orb-tools/pack:
           requires:
             - orb-tools/lint
+
       - queue/block_workflow:
           consider-branch: false
           time: "60"
           requires:
             - orb-tools/pack
+
       - orb-tools/publish-dev:
           orb-name: circleci/helm
           context: orb-publishing
-          requires:
-            - queue/block_workflow
-      - orb-tools/trigger-integration-workflow:
+          requires: [queue/block_workflow]
+      # Trigger an integration workflow to test the
+      # dev:${CIRCLE_SHA1:0:7} version of your orb
+      - orb-tools/trigger-integration-tests-workflow:
           name: trigger-integration-dev
-          ssh-fingerprints: 00:5a:6a:2b:18:ad:a5:ad:0c:7f:40:67:7f:ba:46:4c
-          tag: integration
-          use-git-diff: false
-          static-release-type: patch
+          context: orb-publishing
           requires:
             - orb-tools/publish-dev
-          filters:
-            branches:
-              ignore: master
-      - orb-tools/trigger-integration-workflow:
-          name: trigger-integration-master
-          ssh-fingerprints: 00:5a:6a:2b:18:ad:a5:ad:0c:7f:40:67:7f:ba:46:4c
-          tag: master
-          use-git-diff: false
-          static-release-type: patch
-          requires:
-            - orb-tools/publish-dev
-          filters:
-            branches:
-              only: master
+
   integration-tests:
     jobs:
       - helm-client-install-test:
           name: helm-client-install-specific-version
           version: v2.4.0
-          filters: *integration_test_filters
       - helm-client-install-test:
           name: helm-client-install-latest
-          filters: *integration_test_filters
       - helm-client-install-test:
           name: helm-client-install-v3
           version: v3.0.0
-          filters: *integration_test_filters
+
       - aws-eks/create-cluster:
           name: create-cluster-helm2
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-eks
-          filters: *integration_test_filters
       - aws-eks/create-cluster:
           name: create-cluster-helm3
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm3-eks
-          filters: *integration_test_filters
+
       - install-helm-on-eks-cluster:
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-eks
           requires:
             - create-cluster-helm2
-          filters: *integration_test_filters
       - install-helm-chart-on-eks-cluster:
           name: install-helm-chart-on-eks-cluster-helm2
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-eks
           requires:
             - install-helm-on-eks-cluster
-          filters: *integration_test_filters
       - install-helm-chart-on-eks-cluster:
           name: install-helm-chart-on-eks-cluster-helm3
           helm-version: v3.2.4
@@ -255,13 +199,12 @@ workflows:
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm3-eks
           requires:
             - create-cluster-helm3
-          filters: *integration_test_filters
+
       - upgrade-helm-chart-on-eks-cluster:
           name: upgrade-helm-chart-on-eks-cluster-helm2
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-eks
           requires:
             - install-helm-chart-on-eks-cluster-helm2
-          filters: *integration_test_filters
       - upgrade-helm-chart-on-eks-cluster:
           name: upgrade-helm-chart-on-eks-cluster-helm3
           helm-version: v3.2.4
@@ -269,20 +212,19 @@ workflows:
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm3-eks
           requires:
             - install-helm-chart-on-eks-cluster-helm3
-          filters: *integration_test_filters
+
       - delete-helm-release-on-eks-cluster:
           name: delete-helm-release-on-eks-cluster-helm2
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-eks
           requires:
             - upgrade-helm-chart-on-eks-cluster-helm2
-          filters: *integration_test_filters
       - delete-helm-release-on-eks-cluster:
           name: delete-helm-release-on-eks-cluster-helm3
           helm-version: v3.2.4
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm3-eks
           requires:
             - upgrade-helm-chart-on-eks-cluster-helm3
-          filters: *integration_test_filters
+
       - install-helm-chart-on-eks-cluster:
           name: reinstall-helm-chart-on-eks-cluster-helm3
           helm-version: v3.2.4
@@ -291,7 +233,6 @@ workflows:
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm3-eks
           requires:
             - delete-helm-release-on-eks-cluster-helm3
-          filters: *integration_test_filters
       - delete-helm-release-on-eks-cluster:
           name: delete-helm-release-on-eks-cluster-again-helm3
           helm-version: v3.2.4
@@ -300,36 +241,29 @@ workflows:
           timeout: "600s"
           requires:
             - reinstall-helm-chart-on-eks-cluster-helm3
-          filters: *integration_test_filters
+
       - aws-eks/delete-cluster:
           name: delete-cluster-helm2
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-eks
           wait: true
           requires:
             - delete-helm-release-on-eks-cluster-helm2
-          filters: *integration_test_filters
       - aws-eks/delete-cluster:
           name: delete-cluster-helm3
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm3-eks
           wait: true
           requires:
             - delete-helm-release-on-eks-cluster-again-helm3
-          filters: *integration_test_filters
-  # Tag-triggered workflow to promote a dev orb into production.
-  # The tag is expected to have been applied manually.
-  production-orb-publishing:
-    jobs:
-      - pre-orb-promotion-check:
-          filters: *orb_promotion_filters
-      - hold-for-approval:
-          type: approval
-          requires:
-            - pre-orb-promotion-check
-          filters: *orb_promotion_filters
-      - promote-orb-into-production:
+
+      - orb-tools/dev-promote-prod-from-commit-subject:
           orb-name: circleci/helm
-          orb-ref: dev:${CIRCLE_SHA1:0:7}
           context: orb-publishing
+          add-pr-comment: false
+          fail-if-semver-not-indicated: true
+          publish-version-tag: false
           requires:
-            - hold-for-approval
-          filters: *orb_promotion_filters
+            - delete-cluster-helm2
+            - delete-cluster-helm3
+          filters:
+            branches:
+              only: [master]
