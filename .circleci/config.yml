@@ -139,7 +139,8 @@ jobs:
           helm-version: << parameters.helm-version >>
 
 workflows:
-  lint_pack-validate_publish-dev:
+  ltest-pack:
+    unless: << pipeline.parameters.run-integration-tests >>
     jobs:
       - orb-tools/lint
       - orb-tools/pack:
@@ -164,7 +165,8 @@ workflows:
           requires:
             - orb-tools/publish-dev
 
-  integration-tests:
+  integration-test_deploy:
+    when: << pipeline.parameters.run-integration-tests >>
     jobs:
       - helm-client-install-test:
           name: helm-client-install-specific-version
