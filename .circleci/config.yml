@@ -5,7 +5,7 @@ orbs:
   cli: circleci/circleci-cli@0.1.2
   helm: circleci/helm@<<pipeline.parameters.dev-orb-version>>
   kubernetes: circleci/kubernetes@0.2.0
-  orb-tools: circleci/orb-tools@10
+  orb-tools: circleci/orb-tools@10.0
   queue: eddiewebb/queue@1.1.2
 
 parameters:
@@ -262,7 +262,8 @@ workflows:
           context: orb-publishing
           add-pr-comment: false
           fail-if-semver-not-indicated: true
-          publish-version-tag: false
+          publish-version-tag: true
+          ssh-fingerprints: 00:5a:6a:2b:18:ad:a5:ad:0c:7f:40:67:7f:ba:46:4c
           requires:
             - delete-cluster-helm2
             - delete-cluster-helm3
