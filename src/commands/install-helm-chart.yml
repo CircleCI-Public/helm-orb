@@ -68,6 +68,11 @@ parameters:
       Whether to wait for the installation to be complete
     type: boolean
     default: true
+  wait-for-jobs:
+    description: |
+      Whether to wait until all Jobs have been completed before marking the release as successful.
+    type: boolean
+    default: true
   update-repositories:
     description: |
       Choose to update repositories by running helm repo update.
@@ -108,6 +113,7 @@ steps:
         TLS_VERIFY="<< parameters.tls-verify >>"
         TILLER_NAMESPACE="<< parameters.tiller-namespace >>"
         WAIT="<< parameters.wait >>"
+        WAIT_FOR_JOBS="<< parameters.wait-for-jobs >>"
         if [ -n "${VALUES_TO_OVERRIDE}" ]; then
           set -- "$@" --set "${VALUES_TO_OVERRIDE}"
         fi
@@ -137,6 +143,9 @@ steps:
         fi
         if [ "${WAIT}" == "true" ]; then
           set -- "$@" --wait
+        fi
+        if [ "${WAIT_FOR_JOBS}" == "true" ]; then
+          set -- "$@" --wait-for-jobs
         fi
 
         VERSION_2_MATCH="$(helm version --short -c | grep 'Client: v2' || true)"
