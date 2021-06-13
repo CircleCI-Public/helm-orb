@@ -14,6 +14,18 @@ parameters:
     type: string
     default: "https://charts.helm.sh/stable"
     description: the helm stable repository url to use.
+  username-env-var:
+    type: env_var_name
+    default: HELM_REPO_USERNAME
+    description: >-
+      the environment variable containing the username to authenticate against
+      the stable repository
+  password-env-var:
+    type: env_var_name
+    default: HELM_REPO_PASSWORD
+    description: >-
+      the environment variable containing the password to authenticate against
+      the stable repository
 
 steps:
   - run:
@@ -39,9 +51,23 @@ steps:
         curl "${INSTALL_SCRIPT}" > get_helm.sh
         chmod 700 get_helm.sh
         ./get_helm.sh "$@"
+
+        AUTH_ARGS=""
+        USERNAME="${<< parameters.username-env-var >>}"
+        if [ -n "${USERNAME}" ]; then
+          AUTH_ARGS="${AUTH_ARGS} --username ${USERNAME}"
+        fi
+        PASSWORD="${<< parameters.password-env-var >>}"
+        if [ -n "${PASSWORD}" ]; then
+          AUTH_ARGS="${AUTH_ARGS} --password ${PASSWORD}"
+        fi
+
         STABLE_REPO_URL="<< parameters.stable-repo-url >>"
         if [ "${IS_VERSION_2}" == "true" ]; then
-          helm init --client-only --stable-repo-url "${STABLE_REPO_URL}"
+          helm init \
+            --client-only \
+            --stable-repo-url "${STABLE_REPO_URL}" \
+            "${AUTH_ARGS}"
         else
-          helm repo add stable "${STABLE_REPO_URL}"
+          helm repo add stable "${STABLE_REPO_URL}" "${AUTH_ARGS}"
         fi
