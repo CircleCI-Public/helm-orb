@@ -205,26 +205,26 @@ workflows:
           filters: *integration_test_filters
       - create-namespace-on-eks-cluster:
           context: AWS
-          cluster-name: development
+          cluster-name: development2
           helm-namespace: helm-orb
           filters: *integration_test_filters
       - install-helm-chart-on-eks-cluster:
           context: AWS
-          cluster-name: development
+          cluster-name: development2
           helm-namespace: helm-orb
           requires:
             - create-namespace-on-eks-cluster
           filters: *integration_test_filters
       - upgrade-helm-chart-on-eks-cluster:
           context: AWS
-          cluster-name: development
+          cluster-name: development2
           helm-namespace: helm-orb
           requires:
             - install-helm-chart-on-eks-cluster
           filters: *integration_test_filters
       - delete-helm-release-on-eks-cluster:
           context: AWS
-          cluster-name: development
+          cluster-name: development2
           helm-namespace: helm-orb
           requires:
             - upgrade-helm-chart-on-eks-cluster
