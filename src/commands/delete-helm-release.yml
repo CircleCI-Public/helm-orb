@@ -10,14 +10,22 @@ parameters:
     type: string
   purge:
     description: |
+      Effective for helm 2 commands only (purging is the default in helm 3)
       Whether to remove the release from the store and make its name free for
       later use
     type: boolean
     default: false
+  keep-history:
+    description: |
+      Effective for helm 3 commands only.
+      Retains release history.
+    type: boolean
+    default: false
   timeout:
     description: |
-      Specify time to wait for any individual Kubernetes operation. Must be a Duration
-      string (ex. 600s, 2m, 3h, etc...)
+      Specify a timeout value that will be passed as a --timeout argument
+      to the helm command. For helm 3, the unit of the duration must
+      be specified e.g. '300s'.
     type: string
     default: ""
   namespace:
@@ -61,14 +69,26 @@ parameters:
       Specify the namespace of Tiller
     type: string
     default: ""
+  helm-version:
+    type: string
+    default: "v2.16.9"
+    description: the helm client version to install. e.g. v2.4.0
+  no-output-timeout:
+    description: |
+      Elapsed time that the helm command can run on CircleCI without output.
+      The string is a decimal with unit suffix, such as “20m”, “1.25h”, “5s”
+    type: string
+    default: "30m"
 
 steps:
-  - install-helm-client
+  - install-helm-client:
+      version: << parameters.helm-version >>
   - run:
       name: Delete helm release
       command: |
         RELEASE_NAME="<< parameters.release-name >>"
         PURGE="<< parameters.purge >>"
+        KEEP_HISTORY="<< parameters.keep-history >>"
         TIMEOUT="<< parameters.timeout >>"
         NAMESPACE="<< parameters.namespace >>"
         TLS="<< parameters.tls >>"
@@ -77,10 +97,8 @@ steps:
         TLS_HOSTNAME="<< parameters.tls-hostname >>"
         TLS_KEY="<< parameters.tls-key >>"
         TLS_VERIFY="<< parameters.tls-verify >>"
-        if [ "${PURGE}" == "true" ]; then
-          set -- "$@" --purge
-        fi
-        if [ "${TIMEOUT}" != "-1" ]; then
+
+        if [ -n "${TIMEOUT}" ]; then
           set -- "$@" --timeout="${TIMEOUT}"
         fi
         if [ -n "${NAMESPACE}" ]; then
@@ -104,4 +122,16 @@ steps:
         if [ "${TLS_VERIFY}" == "true" ]; then
           set -- "$@" --tls-verify
         fi
-        helm delete << parameters.release-name >> "$@"
+
+        VERSION_2_MATCH="$(helm version --short -c | grep 'Client: v2' || true)"
+        if [ -n "${VERSION_2_MATCH}" ]; then
+          if [ "${PURGE}" == "true" ]; then
+            set -- "$@" --purge
+          fi
+        else
+          if [ "${KEEP_HISTORY}" == "true" ]; then
+            set -- "$@" --keep-history
+          fi
+        fi
+        helm delete "$@" << parameters.release-name >>
+      no_output_timeout: << parameters.no-output-timeout >>

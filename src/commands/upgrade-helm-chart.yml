@@ -129,16 +129,42 @@ parameters:
       command. Format: key1=val1,key2=val2
     type: string
     default: ""
+  update-repositories:
+    description: |
+      Choose to update repositories by running helm repo update.
+    type: boolean
+    default: true
+  helm-version:
+    type: string
+    default: "v2.16.9"
+    description: the helm client version to install. e.g. v2.4.0
+  no-output-timeout:
+    description: |
+      Elapsed time that the helm command can run on CircleCI without output.
+      The string is a decimal with unit suffix, such as “20m”, “1.25h”, “5s”
+    type: string
+    default: "30m"
+  atomic:
+    description: |
+      if set, upgrade process rolls back changes made in case of failed upgrade.
+      The --wait flag will be set automatically if --atomic is used
+    type: boolean
+    default: false
 steps:
-  - install-helm-client
-  - run:
-      name: Update repository
-      command: |
-        helm repo update
+  - install-helm-client:
+      version: << parameters.helm-version >>
+  - when:
+      condition: << parameters.update-repositories >>
+      steps:
+        - run:
+            name: Update repositories
+            command: |
+              helm repo update
   - run:
       name: Upgrade or install chart
       command: |
         TIMEOUT="<< parameters.timeout >>"
+        ATOMIC="<< parameters.atomic >>"
         WAIT="<< parameters.wait >>"
         ATOMIC="<< parameters.atomic >>"
         CONFIG="<< parameters.config >>"
@@ -170,6 +196,9 @@ steps:
         fi
         if [ "${RECREATE_PODS}"  == "true" ]; then
           set -- "$@" --recreate-pods
+        fi
+        if [ "${ATOMIC}" == "true" ]; then
+          set -- "$@" --atomic
         fi
         if [ "${WAIT}" == "true" ]; then
           set -- "$@" --wait
@@ -219,4 +248,8 @@ steps:
         if [ -n "${VALUES_TO_OVERRIDE}" ]; then
           set -- "$@" --set "${VALUES_TO_OVERRIDE}"
         fi
+        if [ -n "${VERSION}" ]; then
+          set -- "$@" --version="${VERSION}"
+        fi
         helm upgrade --install << parameters.release-name >> << parameters.chart >> "$@"
+      no_output_timeout: << parameters.no-output-timeout >>

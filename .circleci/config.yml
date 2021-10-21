@@ -1,24 +1,25 @@
 version: 2.1
 
-integration_test_filters: &integration_test_filters
-  branches:
-    ignore: /.*/
-  tags:
-    only: /(integration|master)-.*/
-
-orb_promotion_filters: &orb_promotion_filters
-  branches:
-    ignore: /.*/
-  tags:
-    only: /^(major|minor|patch)-release-v\d+\.\d+\.\d+$/
-
 orbs:
   aws-eks: circleci/aws-eks@0.2.6
   cli: circleci/circleci-cli@0.1.2
-  helm: stack-fintech/helm@dev:alpha
+  helm: stack-fintech/helm@<<pipeline.parameters.dev-orb-version>>
   kubernetes: circleci/kubernetes@0.2.0
-  orb-tools: circleci/orb-tools@7.3.0
+  orb-tools: circleci/orb-tools@10.0
   queue: eddiewebb/queue@1.1.2
+
+parameters:
+  run-integration-tests:
+    description: An internal flag to prevent integration test from running before a development version has been created.
+    type: boolean
+    default: false
+  dev-orb-version:
+    description: >
+      The development version of the orb to test.
+      This value is automatically adjusted by the "trigger-integration-tests-workflow" job to correspond with the specific version created by the commit and should not be edited.
+      A "dev:alpha" version must exist for the initial pipeline run.
+    type: string
+    default: "dev:alpha"
 
 jobs:
   helm-client-install-test:
@@ -54,20 +55,40 @@ jobs:
   install-helm-chart-on-eks-cluster:
     executor: aws-eks/python
     parameters:
+      release-name:
+        type: string
+        default: "prometheus-release"
       cluster-name:
         type: string
         description: Cluster name
       helm-namespace:
         type: string
         description: Namespace for Helm config/Tiller
+      helm-version:
+        type: string
+        default: "v2.16.9"
+        description: the helm client version to install. e.g. v2.4.0
+      update-repositories:
+        description: |
+          Choose to update repositories by running helm repo update.
+        type: boolean
+        default: true
     steps:
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: << parameters.cluster-name >>
           aws-region: ${AWS_REGION}
           install-kubectl: true
+      - helm/install-helm-client:
+          version: << parameters.helm-version >>
+      - run:
+          name: Install cncf stable repo
+          command: |
+            helm repo add stable http://cncf.gitlab.io/stable
       - helm/install-helm-chart:
-          chart: stable/grafana
-          release-name: grafana-release
+          chart: stable/prometheus
+          release-name: prometheus-release
+          helm-version: << parameters.helm-version >>
+          update-repositories: << parameters.update-repositories >>
           namespace: << parameters.helm-namespace >>
   upgrade-helm-chart-on-eks-cluster:
     executor: aws-eks/python
@@ -78,15 +99,34 @@ jobs:
       helm-namespace:
         type: string
         description: Namespace for Helm config/Tiller
+      helm-version:
+        type: string
+        default: "v2.16.9"
+        description: the helm client version to install. e.g. v2.4.0
+      update-repositories:
+        description: |
+          Choose to update repositories by running helm repo update.
+        type: boolean
+        default: true
     steps:
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: << parameters.cluster-name >>
           aws-region: ${AWS_REGION}
           install-kubectl: true
+      - helm/install-helm-client:
+          version: << parameters.helm-version >>
+      - run:
+          name: Install cncf stable repo
+          command: |
+            helm repo add stable http://cncf.gitlab.io/stable
       - helm/upgrade-helm-chart:
-          chart: stable/grafana
-          release-name: grafana-release
+          chart: stable/prometheus
+          release-name: prometheus-release
           namespace: << parameters.helm-namespace >>
+          helm-version: << parameters.helm-version >>
+          update-repositories: << parameters.update-repositories >>
+          # test specifying no-output-timeout
+          no-output-timeout: 25m
   delete-helm-release-on-eks-cluster:
     executor: aws-eks/python
     parameters:
@@ -96,15 +136,30 @@ jobs:
       helm-namespace:
         type: string
         description: Namespace for Helm config/Tiller
+      helm-version:
+        type: string
+        default: "v2.16.9"
+        description: the helm client version to install. e.g. v2.4.0
+      timeout:
+        type: string
+        default: ""
     steps:
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: << parameters.cluster-name >>
           aws-region: ${AWS_REGION}
           install-kubectl: true
+      - helm/install-helm-client:
+          version: << parameters.helm-version >>
+      - run:
+          name: Install cncf stable repo
+          command: |
+            helm repo add stable http://cncf.gitlab.io/stable
       - helm/delete-helm-release:
-          release-name: grafana-release
+          release-name: prometheus-release
+          purge: true
+          timeout: << parameters.timeout >>
+          helm-version: << parameters.helm-version >>
           namespace: << parameters.helm-namespace >>
-          timeout: 600s
       - run:
           name: Cleanup test namespace
           command: kubectl delete ns << parameters.helm-namespace >>
@@ -149,45 +204,34 @@ jobs:
               ${CIRCLE_TOKEN}
             fi
 workflows:
-  lint_pack-validate_publish-dev:
+  ltest-pack:
+    unless: << pipeline.parameters.run-integration-tests >>
     jobs:
       - orb-tools/lint
       - orb-tools/pack:
           requires:
             - orb-tools/lint
+
       - queue/block_workflow:
           consider-branch: false
           time: "60"
           requires:
             - orb-tools/pack
+
       - orb-tools/publish-dev:
           orb-name: stack-fintech/helm
           context: orb-publishing
-          requires:
-            - queue/block_workflow
-      - orb-tools/trigger-integration-workflow:
+          requires: [queue/block_workflow]
+      # Trigger an integration workflow to test the
+      # dev:${CIRCLE_SHA1:0:7} version of your orb
+      - orb-tools/trigger-integration-tests-workflow:
           name: trigger-integration-dev
-          ssh-fingerprints: 00:5a:6a:2b:18:ad:a5:ad:0c:7f:40:67:7f:ba:46:4c
-          tag: integration
-          use-git-diff: false
-          static-release-type: patch
+          context: orb-publishing
           requires:
             - orb-tools/publish-dev
-          filters:
-            branches:
-              ignore: master
-      - orb-tools/trigger-integration-workflow:
-          name: trigger-integration-master
-          ssh-fingerprints: 00:5a:6a:2b:18:ad:a5:ad:0c:7f:40:67:7f:ba:46:4c
-          tag: master
-          use-git-diff: false
-          static-release-type: patch
-          requires:
-            - orb-tools/publish-dev
-          filters:
-            branches:
-              only: master
-  integration-tests:
+
+  integration-test_deploy:
+    when: << pipeline.parameters.run-integration-tests >>
     jobs:
       - helm-client-install-test:
           name: helm-client-install-specific-version
@@ -208,27 +252,88 @@ workflows:
           cluster-name: development2
           helm-namespace: helm-orb
           filters: *integration_test_filters
-      - install-helm-chart-on-eks-cluster:
+      - install-helm-on-eks-cluster:
           context: AWS
           cluster-name: development2
           helm-namespace: helm-orb
           requires:
-            - create-namespace-on-eks-cluster
+            - create-cluster-helm2
+          filters: *integration_test_filters
+      - install-helm-chart-on-eks-cluster:
+          name: install-helm-chart-on-eks-cluster-helm2
+          context: AWS
+          cluster-name: development2
+          helm-namespace: helm-orb
+          requires:
+            - install-helm-on-eks-cluster
+          filters: *integration_test_filters
+      - install-helm-chart-on-eks-cluster:
+          name: install-helm-chart-on-eks-cluster-helm3
+          helm-version: v3.2.4
+          # test repo update
+          update-repositories: true
+          context: AWS
+          cluster-name: development2
+          helm-namespace: helm-orb
+          requires:
+            - create-cluster-helm3
           filters: *integration_test_filters
       - upgrade-helm-chart-on-eks-cluster:
+          name: upgrade-helm-chart-on-eks-cluster-helm2
           context: AWS
           cluster-name: development2
           helm-namespace: helm-orb
           requires:
-            - install-helm-chart-on-eks-cluster
+            - install-helm-chart-on-eks-cluster-helm2
+          filters: *integration_test_filters
+      - upgrade-helm-chart-on-eks-cluster:
+          name: upgrade-helm-chart-on-eks-cluster-helm3
+          helm-version: v3.2.4
+          update-repositories: false
+          context: AWS
+          cluster-name: development2
+          helm-namespace: helm-orb
+          requires:
+            - install-helm-chart-on-eks-cluster-helm3
           filters: *integration_test_filters
       - delete-helm-release-on-eks-cluster:
+          name: delete-helm-release-on-eks-cluster-helm2
           context: AWS
           cluster-name: development2
           helm-namespace: helm-orb
           requires:
-            - upgrade-helm-chart-on-eks-cluster
+            - upgrade-helm-chart-on-eks-cluster-helm2
           filters: *integration_test_filters
+      - delete-helm-release-on-eks-cluster:
+          name: delete-helm-release-on-eks-cluster-helm3
+          helm-version: v3.2.4
+          context: AWS
+          cluster-name: development2
+          helm-namespace: helm-orb
+          requires:
+            - upgrade-helm-chart-on-eks-cluster-helm3
+          filters: *integration_test_filters
+      - install-helm-chart-on-eks-cluster:
+          name: reinstall-helm-chart-on-eks-cluster-helm3
+          helm-version: v3.2.4
+          # Test auto-generated release name
+          release-name: ""
+          context: AWS
+          cluster-name: development2
+          requires:
+            - delete-helm-release-on-eks-cluster-helm3
+          filters: *integration_test_filters
+      - delete-helm-release-on-eks-cluster:
+          name: delete-helm-release-on-eks-cluster-again-helm3
+          helm-version: v3.2.4
+          context: AWS
+          cluster-name: development2
+          # test timeout
+          timeout: "600s"
+          requires:
+            - reinstall-helm-chart-on-eks-cluster-helm3
+          filters: *integration_test_filters
+
   # Tag-triggered workflow to promote a dev orb into production.
   # The tag is expected to have been applied manually.
   production-orb-publishing:
