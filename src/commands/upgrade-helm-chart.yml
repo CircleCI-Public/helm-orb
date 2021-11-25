@@ -174,7 +174,7 @@ steps:
         VERSION="<< parameters.version >>"
         VALUES_TO_OVERRIDE="<< parameters.values-to-override >>"
         if [ -n "${NAMESPACE}" ]; then
-          set -- "$@" --namespace="${NAMESPACE}"
+          set -- "$@" --create-namespace --namespace="${NAMESPACE}"
         fi
         if [ -n "${TIMEOUT}" ]; then
           set -- "$@" --timeout "${TIMEOUT}"
