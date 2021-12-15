@@ -129,4 +129,4 @@ steps:
         if [ "${WAIT}" == "true" ]; then
           set -- "$@" --wait
         fi
-        helm init "$@"
+        helm init --upgrade "$@"
