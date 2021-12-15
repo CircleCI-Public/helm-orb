@@ -78,10 +78,10 @@ steps:
         - run:
             name: Create service account with cluster-admin role for Tiller
             command: |
-              SERVICE_ACCOUNT="<< parameters.service-account >>"
-              if [ -z "${SERVICE_ACCOUNT}" ]; then
-                SERVICE_ACCOUNT="tiller"
-              fi
+              # SERVICE_ACCOUNT="<< parameters.service-account >>"
+              # if [ -z "${SERVICE_ACCOUNT}" ]; then
+              #   SERVICE_ACCOUNT="tiller"
+              # fi
               kubectl create serviceaccount ${SERVICE_ACCOUNT}\
                 --namespace kube-system
               kubectl create clusterrolebinding tiller-clusterrolebinding \
@@ -97,7 +97,7 @@ steps:
         TILLER_TLS_VERIFY="<< parameters.tiller-tls-verify >>"
         TILLER_CA_CERT="<< parameters.tiller-ca-cert >>"
         WAIT="<< parameters.wait >>"
-        SERVICE_ACCOUNT="<< parameters.service-account >>"
+        # SERVICE_ACCOUNT="<< parameters.service-account >>"
         TILLER_NAMESPACE="<< parameters.tiller-namespace >>"
         ENABLE_CLUSTER_ADMIN_ACCESS="<< parameters.enable-cluster-wide-admin-access >>"
         if [ "${TILLER_TLS}" == "true" ]; then
