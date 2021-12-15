@@ -130,3 +130,4 @@ steps:
           set -- "$@" --wait
         fi
         helm init --upgrade "$@"
+        exit 0
