@@ -184,7 +184,7 @@ workflows:
 
       - aws-eks/create-cluster:
           name: create-cluster-helm2
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-eks
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm2-eks
       - aws-eks/create-cluster:
           name: create-cluster-helm3
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm3-eks
@@ -195,7 +195,7 @@ workflows:
             - create-cluster-helm2
       - install-helm-chart-on-eks-cluster:
           name: install-helm-chart-on-eks-cluster-helm2
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-eks
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm2-eks
           requires:
             - install-helm-on-eks-cluster
       - install-helm-chart-on-eks-cluster:
@@ -209,7 +209,7 @@ workflows:
 
       - upgrade-helm-chart-on-eks-cluster:
           name: upgrade-helm-chart-on-eks-cluster-helm2
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-eks
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm2-eks
           requires:
             - install-helm-chart-on-eks-cluster-helm2
       - upgrade-helm-chart-on-eks-cluster:
@@ -222,7 +222,7 @@ workflows:
 
       - delete-helm-release-on-eks-cluster:
           name: delete-helm-release-on-eks-cluster-helm2
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-eks
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm2-eks
           requires:
             - upgrade-helm-chart-on-eks-cluster-helm2
       - delete-helm-release-on-eks-cluster:
@@ -251,7 +251,7 @@ workflows:
 
       - aws-eks/delete-cluster:
           name: delete-cluster-helm2
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-eks
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm2-eks
           wait: true
           requires:
             - delete-helm-release-on-eks-cluster-helm2
