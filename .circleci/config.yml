@@ -270,7 +270,6 @@ workflows:
           publish-version-tag: true
           ssh-fingerprints: 00:5a:6a:2b:18:ad:a5:ad:0c:7f:40:67:7f:ba:46:4c
           requires:
-            - delete-cluster-helm2
             - delete-cluster-helm3
           filters:
             branches:
