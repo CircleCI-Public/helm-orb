@@ -126,8 +126,8 @@ parameters:
     default: true
   helm-version:
     type: string
-    default: "v2.16.9"
-    description: the helm client version to install. e.g. v2.4.0
+    default: "v3.8.2"
+    description: the helm client version to install. e.g. v3.0.0
   no-output-timeout:
     description: |
       Elapsed time that the helm command can run on CircleCI without output.
@@ -152,86 +152,28 @@ steps:
               helm repo update
   - run:
       name: Upgrade or install chart
-      command: |
-        TIMEOUT="<< parameters.timeout >>"
-        ATOMIC="<< parameters.atomic >>"
-        WAIT="<< parameters.wait >>"
-        NO_HOOKS="<< parameters.no-hooks >>"
-        RECREATE_PODS="<< parameters.recreate-pods >>"
-        TLS="<< parameters.tls >>"
-        TLS_CA_CERT="<< parameters.tls-ca-cert >>"
-        TLS_CERT="<< parameters.tls-cert >>"
-        TLS_HOSTNAME="<< parameters.tls-hostname >>"
-        TLS_KEY="<< parameters.tls-key >>"
-        TLS_VERIFY="<< parameters.tls-verify >>"
-        TILLER_NAMESPACE="<< parameters.tiller-namespace >>"
-        NAMESPACE="<< parameters.namespace >>"
-        DEVEL="<< parameters.devel >>"
-        DRY_RUN="<< parameters.dry-run >>"
-        RESET_VALUES="<< parameters.reset-values >>"
-        REUSE_VALUES="<< parameters.reuse-values >>"
-        VALUES="<< parameters.values >>"
-        VERSION="<< parameters.version >>"
-        VALUES_TO_OVERRIDE="<< parameters.values-to-override >>"
-        if [ -n "${NAMESPACE}" ]; then
-          set -- "$@" --namespace="${NAMESPACE}"
-        fi
-        if [ -n "${TIMEOUT}" ]; then
-          set -- "$@" --timeout "${TIMEOUT}"
-        fi
-        if [ -n "${NO_HOOKS}" ]; then
-          set -- "$@" --no-hooks="${NO_HOOKS}"
-        fi
-        if [ "${RECREATE_PODS}"  == "true" ]; then
-          set -- "$@" --recreate-pods
-        fi
-        if [ "${ATOMIC}" == "true" ]; then
-          set -- "$@" --atomic
-        fi
-        if [ "${WAIT}" == "true" ]; then
-          set -- "$@" --wait
-        fi
-        if [ "${TLS}" == "true" ]; then
-          set -- "$@" --tls
-        fi
-        if [ -n "${TLS_CA_CERT}" ]; then
-          set -- "$@" --tls-ca-cert="${TLS_CA_CERT}"
-        fi
-        if [ -n "${TLS_CERT}" ]; then
-          set -- "$@" --tls-cert="${TLS_CERT}"
-        fi
-        if [ -n "${TLS_HOSTNAME}" ]; then
-          set -- "$@" --tls-hostname="${TLS_HOSTNAME}"
-        fi
-        if [ -n "${TLS_KEY}" ]; then
-          set -- "$@" --tls-key="${TLS_KEY}"
-        fi
-        if [ "${TLS_VERIFY}" == "true" ]; then
-          set -- "$@" --tls-verify
-        fi
-        if [ -n "${TILLER_NAMESPACE}" ]; then
-          set -- "$@" --tiller-namespace "${TILLER_NAMESPACE}"
-        fi
-        if [ -n "${DEVEL}" ]; then
-          set -- "$@" --devel "${DEVEL}"
-        fi
-        if [ "${DRY_RUN}" == "true" ]; then
-          set -- "$@" --dry-run
-        fi
-        if [ "${RESET_VALUES}" == "true" ]; then
-          set -- "$@" --reset-values
-        fi
-        if [ "${REUSE_VALUES}" == "true" ]; then
-          set -- "$@" --reuse-values
-        fi
-        if [ -n "${VALUES}" ]; then
-          set -- "$@" --values "${VALUES}"
-        fi
-        if [ -n "${VALUES_TO_OVERRIDE}" ]; then
-          set -- "$@" --set "${VALUES_TO_OVERRIDE}"
-        fi
-        if [ -n "${VERSION}" ]; then
-          set -- "$@" --version="${VERSION}"
-        fi
-        helm upgrade --install << parameters.release-name >> << parameters.chart >> "$@"
+      environment:
+        TIMEOUT: << parameters.timeout >>
+        ATOMIC: << parameters.atomic >>
+        ORB_PARAM_WAIT: << parameters.wait >>
+        NO_HOOKS: << parameters.no-hooks >>
+        RECREATE_PODS: << parameters.recreate-pods >>
+        TLS: << parameters.tls >>
+        TLS_CA_CERT: << parameters.tls-ca-cert >>
+        TLS_CERT: << parameters.tls-cert >>
+        TLS_HOSTNAME: << parameters.tls-hostname >>
+        TLS_KEY: << parameters.tls-key >>
+        TLS_VERIFY: << parameters.tls-verify >>
+        TILLER_NAMESPACE: << parameters.tiller-namespace >>
+        ORB_PARAM_NAMESPACE: << parameters.namespace >>
+        DEVEL: << parameters.devel >>
+        DRY_RUN: << parameters.dry-run >>
+        RESET_VALUES: << parameters.reset-values >>
+        REUSE_VALUES: << parameters.reuse-values >>
+        VALUES: << parameters.values >>
+        VERSION: << parameters.version >>
+        VALUES_TO_OVERRIDE: << parameters.values-to-override >>
+        ORB_PARAM_CHART: << parameters.chart >>
+        ORB_PARAM_RELEASE_NAME: << parameters.release-name >>
+      command: <<include(scripts/upgrade-helm-chart.sh)>>
       no_output_timeout: << parameters.no-output-timeout >>

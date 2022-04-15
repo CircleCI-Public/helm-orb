@@ -1,10 +1,11 @@
 version: 2.1
 
 description: |
-  An orb for working with helm for Kubernetes deployments.
+  An orb for working with helm for Kubernetes deployments. Current supports versions 2 and 3.
 
 display:
   home_url: https://github.com/CircleCI-Public/helm-orb
+  source_url: https://github.com/CircleCI-Public/helm-orb
 
 orbs:
   kubernetes: circleci/kubernetes@0.2.0

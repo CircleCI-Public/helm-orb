@@ -75,8 +75,8 @@ parameters:
     default: true
   helm-version:
     type: string
-    default: "v2.16.9"
-    description: the helm client version to install. e.g. v2.4.0
+    default: "v3.8.2"
+    description: the helm client version to install. e.g. v3.0.0
   no-output-timeout:
     description: |
       Elapsed time that the helm command can run on CircleCI without output.
@@ -96,61 +96,18 @@ steps:
               helm repo update
   - run:
       name: Install chart
-      command: |
-        RELEASE_NAME="<< parameters.release-name >>"
-        VALUES_TO_OVERRIDE="<< parameters.values-to-override >>"
-        NAMESPACE="<< parameters.namespace >>"
-        TLS="<< parameters.tls >>"
-        TLS_CA_CERT="<< parameters.tls-ca-cert >>"
-        TLS_CERT="<< parameters.tls-cert >>"
-        TLS_HOSTNAME="<< parameters.tls-hostname >>"
-        TLS_KEY="<< parameters.tls-key >>"
-        TLS_VERIFY="<< parameters.tls-verify >>"
-        TILLER_NAMESPACE="<< parameters.tiller-namespace >>"
-        WAIT="<< parameters.wait >>"
-        if [ -n "${VALUES_TO_OVERRIDE}" ]; then
-          set -- "$@" --set "${VALUES_TO_OVERRIDE}"
-        fi
-        if [ -n "${NAMESPACE}" ]; then
-          set -- "$@" --namespace="${NAMESPACE}"
-        fi
-        if [ "${TLS}" == "true" ]; then
-          set -- "$@" --tls
-        fi
-        if [ -n "${TLS_CA_CERT}" ]; then
-          set -- "$@" --tls-ca-cert="${TLS_CA_CERT}"
-        fi
-        if [ -n "${TLS_CERT}" ]; then
-          set -- "$@" --tls-cert="${TLS_CERT}"
-        fi
-        if [ -n "${TLS_HOSTNAME}" ]; then
-          set -- "$@" --tls-hostname="${TLS_HOSTNAME}"
-        fi
-        if [ -n "${TLS_KEY}" ]; then
-          set -- "$@" --tls-key="${TLS_KEY}"
-        fi
-        if [ "${TLS_VERIFY}" == "true" ]; then
-          set -- "$@" --tls-verify
-        fi
-        if [ -n "${TILLER_NAMESPACE}" ]; then
-          set -- "$@" --tiller-namespace "${TILLER_NAMESPACE}"
-        fi
-        if [ "${WAIT}" == "true" ]; then
-          set -- "$@" --wait
-        fi
-
-        VERSION_2_MATCH="$(helm version --short -c | grep 'Client: v2' || true)"
-        if [ -n "${VERSION_2_MATCH}" ]; then
-          if [ -n "${RELEASE_NAME}" ]; then
-            set -- "$@" --name "${RELEASE_NAME}"
-          fi
-          helm install << parameters.chart >> "$@"
-        else
-          if [ -n "${RELEASE_NAME}" ]; then
-            helm install "${RELEASE_NAME}" << parameters.chart >> "$@"
-          else
-            set -- "$@" --generate-name
-            helm install << parameters.chart >> "$@"
-          fi
-        fi
+      environment:
+        RELEASE_NAME: << parameters.release-name >>
+        VALUES_TO_OVERRIDE: << parameters.values-to-override >>
+        NAMESPACE: << parameters.namespace >>
+        TLS: << parameters.tls >>
+        TLS_CA_CERT: << parameters.tls-ca-cert >>
+        TLS_CERT: << parameters.tls-cert >>
+        TLS_HOSTNAME: << parameters.tls-hostname >>
+        TLS_KEY: << parameters.tls-key >>
+        TLS_VERIFY: << parameters.tls-verify >>
+        TILLER_NAMESPACE: << parameters.tiller-namespace >>
+        ORB_PARAM_WAIT: << parameters.wait >>
+        ORB_PARAM_CHART: << parameters.chart >>
+      command: <<include(scripts/install-helm-chart.sh)>>
       no_output_timeout: << parameters.no-output-timeout >>

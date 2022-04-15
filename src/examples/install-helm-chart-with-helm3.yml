@@ -6,7 +6,7 @@ usage:
   version: 2.1
 
   orbs:
-    aws-eks: circleci/aws-eks@0.2
+    aws-eks: circleci/aws-eks@2.1.2
     helm: circleci/helm@1.0
 
   jobs:

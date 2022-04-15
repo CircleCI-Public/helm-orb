@@ -1,15 +1,13 @@
 description: |
   Install the helm client.
-  Defaults to the latest version of Helm 2.
-  To use Helm 3, specify a version e.g. "v3.0.0".
-
+  Defaults to the latest version of Helm 3. You can specify a specific version e.g v3.0.0.
   Requirements: curl
 
 parameters:
   version:
     type: string
-    default: "v2.16.9"
-    description: the helm client version to install. e.g. v2.4.0
+    default: "v3.8.2"
+    description: the helm client version to install. e.g. v3.8.0
   stable-repo-url:
     type: string
     default: "https://charts.helm.sh/stable"
@@ -18,30 +16,7 @@ parameters:
 steps:
   - run:
       name: Install and init the helm client (if necessary)
-      command: |
-        if which helm > /dev/null; then
-          echo "helm is already installed"
-          exit 0
-        fi
-        VERSION="<< parameters.version >>"
-        IS_VERSION_2="true"
-        if [ -n "${VERSION}" ]; then
-          set -- "$@" --version "${VERSION}"
-          if [ "${VERSION}" == "${VERSION#v2.}" ]; then
-            IS_VERSION_2="false"
-          fi
-        fi
-        INSTALL_SCRIPT="https://raw.githubusercontent.com/helm/helm/master/scripts/get"
-        if [ "${IS_VERSION_2}" == "false" ]; then
-          INSTALL_SCRIPT="https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3"
-        fi
-
-        curl "${INSTALL_SCRIPT}" > get_helm.sh
-        chmod 700 get_helm.sh
-        ./get_helm.sh "$@"
-        STABLE_REPO_URL="<< parameters.stable-repo-url >>"
-        if [ "${IS_VERSION_2}" == "true" ]; then
-          helm init --client-only --stable-repo-url "${STABLE_REPO_URL}"
-        else
-          helm repo add stable "${STABLE_REPO_URL}"
-        fi
+      environment:
+        VERSION: << parameters.version >>
+        STABLE_REPO_URL: << parameters.stable-repo-url >>
+      command: <<include(scripts/install-helm-client.sh)>>
