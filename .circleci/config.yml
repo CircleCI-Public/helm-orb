@@ -190,7 +190,7 @@ workflows:
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm3-eks
 
       - install-helm-on-eks-cluster:
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm-eks
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm2-eks
           requires:
             - create-cluster-helm2
       - install-helm-chart-on-eks-cluster:
