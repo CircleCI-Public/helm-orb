@@ -3,7 +3,7 @@ version: 2.1
 orbs:
   aws-eks: circleci/aws-eks@0.2.1
   cli: circleci/circleci-cli@0.1.2
-  helm: circleci/helm@<<pipeline.parameters.dev-orb-version>>
+  helm: circleci/helm@1.2
   kubernetes: circleci/kubernetes@0.2.0
   orb-tools: circleci/orb-tools@10.0
   queue: eddiewebb/queue@1.1.2
