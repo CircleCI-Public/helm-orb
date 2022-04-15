@@ -6,7 +6,7 @@ orbs:
   helm: circleci/helm@<<pipeline.parameters.dev-orb-version>>
   kubernetes: circleci/kubernetes@1.3.0
   orb-tools: circleci/orb-tools@10.0
-  queue: eddiewebb/queue@1.6.5
+  queue: eddiewebb/queue@1.1.2
 
 parameters:
   run-integration-tests:
