@@ -114,7 +114,8 @@ jobs:
           # test specifying no-output-timeout
           no-output-timeout: 25m
   delete-helm-release-on-eks-cluster:
-    executor: aws-eks/python
+    docker:
+      - image: cimg/python:3.10
     parameters:
       cluster-name:
         type: string
