@@ -186,10 +186,10 @@ workflows:
       #     name: create-cluster-helm2
       #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm2-eks
       - aws-eks/delete-cluster:
-          name: delete-cluster-helm3
+          name: delete-cluster-helm3-1
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm3-eks
       - aws-eks/delete-cluster:
-          name: delete-cluster-helm2
+          name: delete-cluster-helm2-1
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm2-eks
       - aws-eks/create-cluster:
           name: create-cluster-helm3
