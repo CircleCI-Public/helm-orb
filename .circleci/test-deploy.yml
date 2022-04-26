@@ -1,28 +1,15 @@
 version: 2.1
 orbs:
   aws-eks: circleci/aws-eks@2.1.2
-  cli: circleci/circleci-cli@0.1.2
-  kubernetes: circleci/kubernetes@0.2.0
+  cli: circleci/circleci-cli@0.1.9
+  kubernetes: circleci/kubernetes@1.3.0
   helm: circleci/helm@<<pipeline.parameters.dev-orb-version>>
   orb-tools: circleci/orb-tools@11.1
-  queue: eddiewebb/queue@1.1.2
+  queue: eddiewebb/queue@1.7.0
 
 filters: &filters
   tags:
     only: /.*/
-
-parameters:
-  run-integration-tests:
-    description: An internal flag to prevent integration test from running before a development version has been created.
-    type: boolean
-    default: false
-  dev-orb-version:
-    description: >
-      The development version of the orb to test.
-      This value is automatically adjusted by the "trigger-integration-tests-workflow" job to correspond with the specific version created by the commit and should not be edited.
-      A "dev:alpha" version must exist for the initial pipeline run.
-    type: string
-    default: "dev:alpha"
 
 jobs:
   helm-client-install-test:

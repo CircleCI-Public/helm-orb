@@ -1,4 +1,4 @@
-if command -v helm > /dev/null; then
+if command -v helm &> /dev/null; then
     echo "helm is already installed"
     exit 0
 fi
