@@ -1,7 +1,7 @@
 version: 2.1
 
 description: |
-  An orb for working with helm for Kubernetes deployments. Current supports versions 2 and 3.
+  An orb for working with helm for Kubernetes deployments. Currently supports helm3 versions.
 
 display:
   home_url: https://helm.sh/

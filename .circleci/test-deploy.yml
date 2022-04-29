@@ -139,7 +139,6 @@ workflows:
       - orb-tools/pack:
           filters: *filters
       - orb-tools/review:
-          exclude: RC005,RC009
           filters: *filters
       - orb-tools/publish:
           orb-name: circleci/helm
