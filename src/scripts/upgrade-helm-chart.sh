@@ -37,4 +37,8 @@ fi
 if [ -n "${VERSION}" ]; then
   set -- "$@" --version="${VERSION}"
 fi
+
+helm repo add "${ORB_PARAM_RELEASE_NAME}" "${ORB_PARAM_REPO}"
+helm repo update
+
 helm upgrade --install "${ORB_PARAM_RELEASE_NAME}" "${ORB_PARAM_CHART}" "$@"

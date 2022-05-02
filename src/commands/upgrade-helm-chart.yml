@@ -112,16 +112,8 @@ parameters:
 steps:
   - install-helm-client:
       version: << parameters.helm-version >>
-  - when:
-      condition: << parameters.update-repositories >>
-      steps:
-        - run:
-            name: Update repositories
-            command: |
-              helm repo add <<parameters.release-name>> <<parameters.add-repo>> && \
-              helm repo update
   - run:
-      name: Upgrade or install chart
+      name: Upgrade, update, or install chart
       environment:
         TIMEOUT: << parameters.timeout >>
         ATOMIC: << parameters.atomic >>
@@ -138,5 +130,6 @@ steps:
         VALUES_TO_OVERRIDE: << parameters.values-to-override >>
         ORB_PARAM_CHART: << parameters.chart >>
         ORB_PARAM_RELEASE_NAME: << parameters.release-name >>
+        ORB_PARAM_REPO: << parameters.add-repo >>
       command: <<include(scripts/upgrade-helm-chart.sh)>>
       no_output_timeout: << parameters.no-output-timeout >>
