@@ -71,8 +71,8 @@ parameters:
     default: ""
   helm-version:
     type: string
-    default: "v2.16.9"
-    description: the helm client version to install. e.g. v2.4.0
+    default: "v3.8.2"
+    description: the helm client version to install. e.g. v3.0.0.
   no-output-timeout:
     description: |
       Elapsed time that the helm command can run on CircleCI without output.
@@ -85,57 +85,19 @@ steps:
       version: << parameters.helm-version >>
   - run:
       name: Delete helm release
-      command: |
-        RELEASE_NAME="<< parameters.release-name >>"
-        PURGE="<< parameters.purge >>"
-        KEEP_HISTORY="<< parameters.keep-history >>"
-        TIMEOUT="<< parameters.timeout >>"
-        NAMESPACE="<< parameters.namespace >>"
-        TLS="<< parameters.tls >>"
-        TLS_CA_CERT="<< parameters.tls-ca-cert >>"
-        TLS_CERT="<< parameters.tls-cert >>"
-        TLS_HOSTNAME="<< parameters.tls-hostname >>"
-        TLS_KEY="<< parameters.tls-key >>"
-        TLS_VERIFY="<< parameters.tls-verify >>"
-        TILLER_NAMESPACE="<< parameters.tiller-namespace >>"
-
-        if [ -n "${TIMEOUT}" ]; then
-          set -- "$@" --timeout="${TIMEOUT}"
-        fi
-        if [ -n "${NAMESPACE}" ]; then
-          set -- "$@" --namespace="${NAMESPACE}"
-        fi
-        if [ "${TLS}" == "true" ]; then
-          set -- "$@" --tls
-        fi
-        if [ -n "${TLS_CA_CERT}" ]; then
-          set -- "$@" --tls-ca-cert="${TLS_CA_CERT}"
-        fi
-        if [ -n "${TLS_CERT}" ]; then
-          set -- "$@" --tls-cert="${TLS_CERT}"
-        fi
-        if [ -n "${TLS_HOSTNAME}" ]; then
-          set -- "$@" --tls-hostname="${TLS_HOSTNAME}"
-        fi
-        if [ -n "${TLS_KEY}" ]; then
-          set -- "$@" --tls-key="${TLS_KEY}"
-        fi
-        if [ "${TLS_VERIFY}" == "true" ]; then
-          set -- "$@" --tls-verify
-        fi
-        if [ -n "${TILLER_NAMESPACE}" ]; then
-          set -- "$@" --tiller-namespace "${TILLER_NAMESPACE}"
-        fi
-
-        VERSION_2_MATCH="$(helm version --short -c | grep 'Client: v2' || true)"
-        if [ -n "${VERSION_2_MATCH}" ]; then
-          if [ "${PURGE}" == "true" ]; then
-            set -- "$@" --purge
-          fi
-        else
-          if [ "${KEEP_HISTORY}" == "true" ]; then
-            set -- "$@" --keep-history
-          fi
-        fi
-        helm delete "$@" << parameters.release-name >>
+      environment:
+        RELEASE_NAME: << parameters.release-name >>
+        PURGE: << parameters.purge >>
+        KEEP_HISTORY: << parameters.keep-history >>
+        TIMEOUT: << parameters.timeout >>
+        NAMESPACE: << parameters.namespace >>
+        TLS: << parameters.tls >>
+        TLS_CA_CERT: << parameters.tls-ca-cert >>
+        TLS_CERT: << parameters.tls-cert >>
+        TLS_HOSTNAME: << parameters.tls-hostname >>
+        TLS_KEY: << parameters.tls-key >>
+        TLS_VERIFY: << parameters.tls-verify >>
+        TILLER_NAMESPACE: << parameters.tiller-namespace >>
+        PARAM_RELEASE_NAME: << parameters.release-name >>
+      command: <<include(scripts/delete-helm-release.sh)>>
       no_output_timeout: << parameters.no-output-timeout >>

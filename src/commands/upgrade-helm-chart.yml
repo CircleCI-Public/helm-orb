@@ -12,6 +12,11 @@ parameters:
       or an absolute URL (e.g. https://example.com/charts/nginx-1.2.3.tgz)
     type: string
     default: ""
+  add-repo:
+    description: |
+      The url for the helm chart repository used as part of helm repo add
+      command
+    type: string
   release-name:
     description: |
       Specify a name for the release.
@@ -30,42 +35,6 @@ parameters:
   timeout:
     description: |
       If timeout is reached, the release will be marked as FAILED.
-    type: string
-    default: ""
-  tls:
-    description: |
-      Enable TLS for the request
-    type: boolean
-    default: false
-  tls-ca-cert:
-    description: |
-      Path to TLS CA certificate file
-    type: string
-    default: ""
-  tls-cert:
-    description: |
-      Path to TLS certificate file
-    type: string
-    default: ""
-  tls-hostname:
-    description: |
-      The server name used to verify the hostname on the returned
-      certificates from the server
-    type: string
-    default: ""
-  tls-key:
-    description: |
-      Path to TLS key file
-    type: string
-    default: ""
-  tls-verify:
-    description: |
-      Enable TLS for request and verify remote
-    type: boolean
-    default: false
-  tiller-namespace:
-    description: |
-      Specify the namespace of Tiller
     type: string
     default: ""
   no-hooks:
@@ -126,8 +95,8 @@ parameters:
     default: true
   helm-version:
     type: string
-    default: "v2.16.9"
-    description: the helm client version to install. e.g. v2.4.0
+    default: "v3.8.2"
+    description: the helm client version to install. e.g. v3.0.0
   no-output-timeout:
     description: |
       Elapsed time that the helm command can run on CircleCI without output.
@@ -143,95 +112,24 @@ parameters:
 steps:
   - install-helm-client:
       version: << parameters.helm-version >>
-  - when:
-      condition: << parameters.update-repositories >>
-      steps:
-        - run:
-            name: Update repositories
-            command: |
-              helm repo update
   - run:
-      name: Upgrade or install chart
-      command: |
-        TIMEOUT="<< parameters.timeout >>"
-        ATOMIC="<< parameters.atomic >>"
-        WAIT="<< parameters.wait >>"
-        NO_HOOKS="<< parameters.no-hooks >>"
-        RECREATE_PODS="<< parameters.recreate-pods >>"
-        TLS="<< parameters.tls >>"
-        TLS_CA_CERT="<< parameters.tls-ca-cert >>"
-        TLS_CERT="<< parameters.tls-cert >>"
-        TLS_HOSTNAME="<< parameters.tls-hostname >>"
-        TLS_KEY="<< parameters.tls-key >>"
-        TLS_VERIFY="<< parameters.tls-verify >>"
-        TILLER_NAMESPACE="<< parameters.tiller-namespace >>"
-        NAMESPACE="<< parameters.namespace >>"
-        DEVEL="<< parameters.devel >>"
-        DRY_RUN="<< parameters.dry-run >>"
-        RESET_VALUES="<< parameters.reset-values >>"
-        REUSE_VALUES="<< parameters.reuse-values >>"
-        VALUES="<< parameters.values >>"
-        VERSION="<< parameters.version >>"
-        VALUES_TO_OVERRIDE="<< parameters.values-to-override >>"
-        if [ -n "${NAMESPACE}" ]; then
-          set -- "$@" --namespace="${NAMESPACE}"
-        fi
-        if [ -n "${TIMEOUT}" ]; then
-          set -- "$@" --timeout "${TIMEOUT}"
-        fi
-        if [ -n "${NO_HOOKS}" ]; then
-          set -- "$@" --no-hooks="${NO_HOOKS}"
-        fi
-        if [ "${RECREATE_PODS}"  == "true" ]; then
-          set -- "$@" --recreate-pods
-        fi
-        if [ "${ATOMIC}" == "true" ]; then
-          set -- "$@" --atomic
-        fi
-        if [ "${WAIT}" == "true" ]; then
-          set -- "$@" --wait
-        fi
-        if [ "${TLS}" == "true" ]; then
-          set -- "$@" --tls
-        fi
-        if [ -n "${TLS_CA_CERT}" ]; then
-          set -- "$@" --tls-ca-cert="${TLS_CA_CERT}"
-        fi
-        if [ -n "${TLS_CERT}" ]; then
-          set -- "$@" --tls-cert="${TLS_CERT}"
-        fi
-        if [ -n "${TLS_HOSTNAME}" ]; then
-          set -- "$@" --tls-hostname="${TLS_HOSTNAME}"
-        fi
-        if [ -n "${TLS_KEY}" ]; then
-          set -- "$@" --tls-key="${TLS_KEY}"
-        fi
-        if [ "${TLS_VERIFY}" == "true" ]; then
-          set -- "$@" --tls-verify
-        fi
-        if [ -n "${TILLER_NAMESPACE}" ]; then
-          set -- "$@" --tiller-namespace "${TILLER_NAMESPACE}"
-        fi
-        if [ -n "${DEVEL}" ]; then
-          set -- "$@" --devel "${DEVEL}"
-        fi
-        if [ "${DRY_RUN}" == "true" ]; then
-          set -- "$@" --dry-run
-        fi
-        if [ "${RESET_VALUES}" == "true" ]; then
-          set -- "$@" --reset-values
-        fi
-        if [ "${REUSE_VALUES}" == "true" ]; then
-          set -- "$@" --reuse-values
-        fi
-        if [ -n "${VALUES}" ]; then
-          set -- "$@" --values "${VALUES}"
-        fi
-        if [ -n "${VALUES_TO_OVERRIDE}" ]; then
-          set -- "$@" --set "${VALUES_TO_OVERRIDE}"
-        fi
-        if [ -n "${VERSION}" ]; then
-          set -- "$@" --version="${VERSION}"
-        fi
-        helm upgrade --install << parameters.release-name >> << parameters.chart >> "$@"
+      name: Upgrade, update, or install chart
+      environment:
+        TIMEOUT: << parameters.timeout >>
+        ATOMIC: << parameters.atomic >>
+        ORB_PARAM_WAIT: << parameters.wait >>
+        NO_HOOKS: << parameters.no-hooks >>
+        RECREATE_PODS: << parameters.recreate-pods >>
+        ORB_PARAM_NAMESPACE: << parameters.namespace >>
+        DEVEL: << parameters.devel >>
+        DRY_RUN: << parameters.dry-run >>
+        RESET_VALUES: << parameters.reset-values >>
+        REUSE_VALUES: << parameters.reuse-values >>
+        VALUES: << parameters.values >>
+        VERSION: << parameters.version >>
+        VALUES_TO_OVERRIDE: << parameters.values-to-override >>
+        ORB_PARAM_CHART: << parameters.chart >>
+        ORB_PARAM_RELEASE_NAME: << parameters.release-name >>
+        ORB_PARAM_REPO: << parameters.add-repo >>
+      command: <<include(scripts/upgrade-helm-chart.sh)>>
       no_output_timeout: << parameters.no-output-timeout >>
