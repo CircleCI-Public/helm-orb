@@ -12,6 +12,11 @@ parameters:
       or an absolute URL (e.g. https://example.com/charts/nginx-1.2.3.tgz)
     type: string
     default: ""
+  add-repo:
+    description: |
+      The url for the helm chart repository used as part of helm repo add
+      command
+    type: string
   release-name:
     description: |
       Specify a name for the release.
@@ -113,6 +118,7 @@ steps:
         - run:
             name: Update repositories
             command: |
+              helm repo add <<parameters.release-name>> <<parameters.add-repo>> && \
               helm repo update
   - run:
       name: Upgrade or install chart

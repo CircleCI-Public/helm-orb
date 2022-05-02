@@ -84,6 +84,10 @@ jobs:
       release-name:
         type: string
         default: "prometheus-community"
+      add-repo:
+        type: string
+        default: "https://prometheus-community.github.io/helm-charts"
+        description: the helm chart repository url to use
       cluster-name:
         type: string
         description: Cluster name
