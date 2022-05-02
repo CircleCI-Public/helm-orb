@@ -32,42 +32,6 @@ parameters:
       If timeout is reached, the release will be marked as FAILED.
     type: string
     default: ""
-  tls:
-    description: |
-      Enable TLS for the request
-    type: boolean
-    default: false
-  tls-ca-cert:
-    description: |
-      Path to TLS CA certificate file
-    type: string
-    default: ""
-  tls-cert:
-    description: |
-      Path to TLS certificate file
-    type: string
-    default: ""
-  tls-hostname:
-    description: |
-      The server name used to verify the hostname on the returned
-      certificates from the server
-    type: string
-    default: ""
-  tls-key:
-    description: |
-      Path to TLS key file
-    type: string
-    default: ""
-  tls-verify:
-    description: |
-      Enable TLS for request and verify remote
-    type: boolean
-    default: false
-  tiller-namespace:
-    description: |
-      Specify the namespace of Tiller
-    type: string
-    default: ""
   no-hooks:
     description: |
       This skips running hooks for the command
@@ -158,13 +122,6 @@ steps:
         ORB_PARAM_WAIT: << parameters.wait >>
         NO_HOOKS: << parameters.no-hooks >>
         RECREATE_PODS: << parameters.recreate-pods >>
-        TLS: << parameters.tls >>
-        TLS_CA_CERT: << parameters.tls-ca-cert >>
-        TLS_CERT: << parameters.tls-cert >>
-        TLS_HOSTNAME: << parameters.tls-hostname >>
-        TLS_KEY: << parameters.tls-key >>
-        TLS_VERIFY: << parameters.tls-verify >>
-        TILLER_NAMESPACE: << parameters.tiller-namespace >>
         ORB_PARAM_NAMESPACE: << parameters.namespace >>
         DEVEL: << parameters.devel >>
         DRY_RUN: << parameters.dry-run >>
