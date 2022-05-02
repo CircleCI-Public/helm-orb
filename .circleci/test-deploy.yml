@@ -72,8 +72,9 @@ jobs:
           command: |
             helm repo add stable http://cncf.gitlab.io/stable
       - helm/install-helm-chart:
-          chart: stable/prometheus
-          release-name: prometheus-release
+          chart: << parameters.chart >>
+          add-repo: << parameters.add-repo >>
+          release-name: << parameters.release-name >>
           helm-version: << parameters.helm-version >>
           update-repositories: << parameters.update-repositories >>
   upgrade-helm-chart-on-eks-cluster:
