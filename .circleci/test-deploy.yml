@@ -227,7 +227,8 @@ workflows:
           name: reinstall-helm-chart-on-eks-cluster-helm4
           helm-version: v3.8.2
           # Test auto-generated release name
-          release-name: ""
+          release-name: prometheus-community
+          add-repo: https://prometheus-community.github.io/helm-charts
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm4-eks
           filters: *filters
           requires:
