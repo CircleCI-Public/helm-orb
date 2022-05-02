@@ -115,6 +115,7 @@ jobs:
           command: |
             helm repo add stable http://cncf.gitlab.io/stable
       - helm/upgrade-helm-chart:
+          add-repo: << parameters.add-repo >>
           chart: << parameters.chart >>
           release-name: << parameters.release-name >>
           helm-version: << parameters.helm-version >>
