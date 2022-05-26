@@ -32,7 +32,7 @@ if [ -n "${VALUES}" ]; then
   set -- "$@" --values "${VALUES}"
 fi
 if [ -n "${VALUES_TO_OVERRIDE}" ]; then
-  set -- "$@" --set "${VALUES_TO_OVERRIDE}"
+  set -- "$@" --set "$(echo eval ${VALUES_TO_OVERRIDE})"
 fi
 if [ -n "${VERSION}" ]; then
   set -- "$@" --version="${VERSION}"
