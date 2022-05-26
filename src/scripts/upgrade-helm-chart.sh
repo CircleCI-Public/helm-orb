@@ -29,7 +29,7 @@ if [ "${REUSE_VALUES}" == "true" ]; then
   set -- "$@" --reuse-values
 fi
 if [ -n "${VALUES}" ]; then
-  set -- "$@" --values "${VALUES}"
+  set -- "$@" --values "$(echo eval ${VALUES})"
 fi
 if [ -n "${VALUES_TO_OVERRIDE}" ]; then
   set -- "$@" --set "$(echo eval ${VALUES_TO_OVERRIDE})"
