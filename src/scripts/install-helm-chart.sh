@@ -1,5 +1,5 @@
 if [ -n "${VALUES_TO_OVERRIDE}" ]; then
-  set -- "$@" --set "$(echo eval ${VALUES_TO_OVERRIDE})"
+  set -- "$@" --set "$(eval ${VALUES_TO_OVERRIDE})"
 fi
 if [ -n "${NAMESPACE}" ]; then
   set -- "$@" --namespace="${NAMESPACE}"
