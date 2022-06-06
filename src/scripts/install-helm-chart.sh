@@ -2,7 +2,7 @@ if [ -n "${VALUES_TO_OVERRIDE}" ]; then
   set -- "$@" --set "$(eval ${VALUES_TO_OVERRIDE})"
 fi
 if [ -n "${NAMESPACE}" ]; then
-  set -- "$@" --namespace="${NAMESPACE}"
+  set -- "$@" --namespace="$(eval ${NAMESPACE})"
 fi
 if [ "${ORB_PARAM_WAIT}" == "true" ]; then
   set -- "$@" --wait

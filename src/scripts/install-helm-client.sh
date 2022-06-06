@@ -4,7 +4,7 @@ if command -v helm &> /dev/null; then
 fi
 
 if [ -n "${VERSION}" ]; then
-  set -- "$@" --version "${VERSION}"
+  set -- "$@" --version "$(eval ${VERSION})"
 fi
 
 INSTALL_SCRIPT="https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3"

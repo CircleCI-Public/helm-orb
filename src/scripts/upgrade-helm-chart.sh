@@ -1,11 +1,11 @@
 if [ -n "${ORB_PARAM_NAMESPACE}" ]; then
-  set -- "$@" --namespace="${ORB_PARAM_NAMESPACE}"
+  set -- "$@" --namespace="$(eval ${ORB_PARAM_NAMESPACE})"
 fi
 if [ -n "${TIMEOUT}" ]; then
-  set -- "$@" --timeout "${TIMEOUT}"
+  set -- "$@" --timeout "$(eval ${TIMEOUT})"
 fi
 if [ -n "${NO_HOOKS}" ]; then
-  set -- "$@" --no-hooks="${NO_HOOKS}"
+  set -- "$@" --no-hooks="$(eval ${NO_HOOKS})"
 fi
 if [ "${RECREATE_PODS}"  == "true" ]; then
   set -- "$@" --recreate-pods
@@ -17,7 +17,7 @@ if [ "${ORB_PARAM_WAIT}" == "true" ]; then
   set -- "$@" --wait
 fi
 if [ -n "${DEVEL}" ]; then
-  set -- "$@" --devel "${DEVEL}"
+  set -- "$@" --devel "$(eval ${DEVEL})"
 fi
 if [ "${DRY_RUN}" == "true" ]; then
   set -- "$@" --dry-run
@@ -35,7 +35,7 @@ if [ -n "${VALUES_TO_OVERRIDE}" ]; then
   set -- "$@" --set "$(eval ${VALUES_TO_OVERRIDE})"
 fi
 if [ -n "${VERSION}" ]; then
-  set -- "$@" --version="${VERSION}"
+  set -- "$@" --version="$(eval ${VERSION})"
 fi
 
 helm repo add "${ORB_PARAM_RELEASE_NAME}" "${ORB_PARAM_REPO}"
