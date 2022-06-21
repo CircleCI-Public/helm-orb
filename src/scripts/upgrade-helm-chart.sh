@@ -19,6 +19,9 @@ fi
 if [ -n "${DEVEL}" ]; then
   set -- "$@" --devel "${DEVEL}"
 fi
+if [ -n "${DEBUG}" ]; then
+  set -- "$@" --debug
+fi
 if [ "${DRY_RUN}" == "true" ]; then
   set -- "$@" --dry-run
 fi
