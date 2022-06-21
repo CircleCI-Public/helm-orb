@@ -127,7 +127,7 @@ steps:
         RECREATE_PODS: << parameters.recreate-pods >>
         ORB_PARAM_NAMESPACE: << parameters.namespace >>
         DEVEL: << parameters.devel >>
-        DEVEL: << parameters.debug >>
+        DEBUG: << parameters.debug >>
         DRY_RUN: << parameters.dry-run >>
         RESET_VALUES: << parameters.reset-values >>
         REUSE_VALUES: << parameters.reuse-values >>
