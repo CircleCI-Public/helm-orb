@@ -52,7 +52,7 @@ jobs:
         type: string
         default: "https://prometheus-community.github.io/helm-charts"
         description: the helm chart repository url to use
-      chart: 
+      chart:
         type: string
         default: "prometheus-community/prometheus"
         description: the helm chart to install
@@ -95,7 +95,7 @@ jobs:
         type: string
         default: "v3.8.2"
         description: the helm client version to install. e.g. v3.0.0
-      chart: 
+      chart:
         type: string
         default: "prometheus-community/prometheus"
         description: the helm chart to install
