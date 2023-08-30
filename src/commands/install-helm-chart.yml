@@ -34,9 +34,15 @@ parameters:
     default: ""
   wait:
     description: |
-      Whether to wait for the installation to be complete
+      Whether to wait for the installation or upgrade to be complete
     type: boolean
-    default: true
+    default: false
+  wait_for_jobs:
+    description: |
+      Whether to wait for all jobs associated with deployment to be complete before marking the release as successful.
+    type: boolean
+    default: false
+
   update-repositories:
     description: |
       Choose to update repositories by running helm repo update.
@@ -72,5 +78,6 @@ steps:
         NAMESPACE: << parameters.namespace >>
         ORB_PARAM_WAIT: << parameters.wait >>
         ORB_PARAM_CHART: << parameters.chart >>
+        HELM_BOOL_WAIT_FOR_JOBS: << parameters.wait_for_jobs >>
       command: <<include(scripts/install-helm-chart.sh)>>
       no_output_timeout: << parameters.no-output-timeout >>
