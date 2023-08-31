@@ -21,7 +21,7 @@ workflows:
           exclude: SC2148,SC2038,SC2086,SC2002,SC2016
           filters: *filters
       - orb-tools/continue:
-          orb-name: helm
+          orb_name: helm
           pipeline_number: << pipeline.number >>
           vcs_type: << pipeline.project.type >>
           requires: [orb-tools/lint, orb-tools/review, orb-tools/pack, shellcheck/check]
