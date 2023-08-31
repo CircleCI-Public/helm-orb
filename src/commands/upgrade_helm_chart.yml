@@ -12,12 +12,12 @@ parameters:
       or an absolute URL (e.g. https://example.com/charts/nginx-1.2.3.tgz)
     type: string
     default: ""
-  add-repo:
+  add_repo:
     description: |
       The url for the helm chart repository used as part of helm repo add
       command
     type: string
-  release-name:
+  release_name:
     description: |
       Specify a name for the release.
     type: string
@@ -42,7 +42,7 @@ parameters:
       If timeout is reached, the release will be marked as FAILED.
     type: string
     default: ""
-  no-hooks:
+  no_hooks:
     description: |
       This skips running hooks for the command
     type: boolean
@@ -52,7 +52,7 @@ parameters:
       Use development versions, too. Equivalent to version '>0.0.0-0'. If --version is set, this is ignored.
     type: string
     default: ""
-  dry-run:
+  dry_run:
     description: |
       simulate an upgrade
     type: boolean
@@ -62,14 +62,14 @@ parameters:
       Use development versions, too. Equivalent to version '>0.0.0-0'. If --version is set, this is ignored.
     type: boolean
     default: false
-  reset-values:
+  reset_values:
     description: |
       when upgrading, reset the values to the ones built into the chart
     type: boolean
     default: false
-  reuse-values:
+  reuse_values:
     description: |
-      when upgrading, reuse the last release's values and merge in any overrides from the command line via --set and -f. If '--reset-values' is specified, this is ignored.
+      when upgrading, reuse the last release's values and merge in any overrides from the command line via --set and -f. If '--reset_values' is specified, this is ignored.
     type: boolean
     default: false
   values:
@@ -82,27 +82,27 @@ parameters:
       specify the exact chart version to use. If this is not specified, the latest version is used
     type: string
     default: ""
-  recreate-pods:
+  recreate_pods:
     description: |
       performs pods restart for the resource if applicable
     type: boolean
     default: false
-  values-to-override:
+  values_to_override:
     description: |
       Override values in a chart using the --set flag of the helm upgrade
       command. Format: key1=val1,key2=val2
     type: string
     default: ""
-  update-repositories:
+  update_repositories:
     description: |
       Choose to update repositories by running helm repo update.
     type: boolean
     default: true
-  helm-version:
+  helm_version:
     type: string
     default: "v3.8.2"
     description: the helm client version to install. e.g. v3.0.0
-  no-output-timeout:
+  no_output_timeout:
     description: |
       Elapsed time that the helm command can run on CircleCI without output.
       The string is a decimal with unit suffix, such as “20m”, “1.25h”, “5s”
@@ -115,27 +115,27 @@ parameters:
     type: boolean
     default: false
 steps:
-  - install-helm-client:
-      version: << parameters.helm-version >>
+  - install_helm_client:
+      version: << parameters.helm_version >>
   - run:
       name: Upgrade, update, or install chart
       environment:
         HELM_STR_TIMEOUT: << parameters.timeout >>
         HELM_BOOL_ATOMIC: << parameters.atomic >>
         HELM_BOOL_WAIT: << parameters.wait >>
-        HELM_BOOL_NO_HOOKS: << parameters.no-hooks >>
-        HELM_BOOL_RECREATE_PODS: << parameters.recreate-pods >>
+        HELM_BOOL_NO_HOOKS: << parameters.no_hooks >>
+        HELM_BOOL_RECREATE_PODS: << parameters.recreate_pods >>
         HELM_STR_NAMESPACE: << parameters.namespace >>
         HELM_STR_DEVEL: << parameters.devel >>
-        HELM_BOOL_DRY_RUN: << parameters.dry-run >>
-        HELM_BOOL_RESET_VALUES: << parameters.reset-values >>
-        HELM_BOOL_REUSE_VALUES: << parameters.reuse-values >>
+        HELM_BOOL_DRY_RUN: << parameters.dry_run >>
+        HELM_BOOL_RESET_VALUES: << parameters.reset_values >>
+        HELM_BOOL_REUSE_VALUES: << parameters.reuse_values >>
         HELM_STR_VALUES: << parameters.values >>
         HELM_STR_VERSION: << parameters.version >>
-        HELM_STR_VALUES_TO_OVERRIDE: << parameters.values-to-override >>
+        HELM_STR_VALUES_TO_OVERRIDE: << parameters.values_to_override >>
         HELM_STR_CHART: << parameters.chart >>
-        HELM_STR_RELEASE_NAME: << parameters.release-name >>
-        HELM_STR_ADD_REPO: << parameters.add-repo >>
+        HELM_STR_RELEASE_NAME: << parameters.release_name >>
+        HELM_STR_ADD_REPO: << parameters.add_repo >>
         HELM_BOOL_WAIT_FOR_JOBS: << parameters.wait_for_jobs >>
-      command: <<include(scripts/upgrade-helm-chart.sh)>>
-      no_output_timeout: << parameters.no-output-timeout >>
+      command: <<include(scripts/upgrade_helm_chart.sh)>>
+      no_output_timeout: << parameters.no_output_timeout >>
