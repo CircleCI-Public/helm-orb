@@ -1,39 +1,51 @@
-if [ -n "${TIMEOUT}" ]; then
-  set -- "$@" --timeout="${TIMEOUT}"
+#!/bin/bash
+HELM_STR_TIMEOUT="$(echo "${HELM_STR_TIMEOUT}" | circleci env subst)"
+HELM_STR_NAMESPACE="$(echo "${HELM_STR_NAMESPACE}" | circleci env subst)"
+HELM_STR_TLS_CA_CERT="$(echo "${HELM_STR_TLS_CA_CERT}" | circleci env subst)"
+HELM_STR_TLS_CERT="$(echo "${HELM_STR_TLS_CERT}" | circleci env subst)"
+HELM_STR_TLS_HOSTNAME="$(echo "${HELM_STR_TLS_HOSTNAME}" | circleci env subst)"
+HELM_STR_TLS_KEY="$(echo "${HELM_STR_TLS_KEY}" | circleci env subst)"
+HELM_STR_RELEASE_NAME="$(echo "${HELM_STR_RELEASE_NAME}" | circleci env subst)"
+HELM_STR_TILLER_NAMESPACE="$(echo "${HELM_STR_TILLER_NAMESPACE}" | circleci env subst)"
+
+set -x
+if [ -n "${HELM_STR_TIMEOUT}" ]; then
+  set -- "$@" --timeout="${HELM_STR_TIMEOUT}"
 fi
-if [ -n "${NAMESPACE}" ]; then
-  set -- "$@" --namespace="${NAMESPACE}"
+if [ -n "${HELM_STR_NAMESPACE}" ]; then
+  set -- "$@" --namespace="${HELM_STR_NAMESPACE}"
 fi
-if [ "${TLS}" == "true" ]; then
+if [ "${HELM_BOOL_TLS}" -eq "1" ]; then
   set -- "$@" --tls
 fi
-if [ -n "${TLS_CA_CERT}" ]; then
-  set -- "$@" --tls-ca-cert="${TLS_CA_CERT}"
+if [ -n "${HELM_STR_TLS_CA_CERT}" ]; then
+  set -- "$@" --tls-ca-cert="${HELM_STR_TLS_CA_CERT}"
 fi
-if [ -n "${TLS_CERT}" ]; then
-  set -- "$@" --tls-cert="${TLS_CERT}"
+if [ -n "${HELM_STR_TLS_CERT}" ]; then
+  set -- "$@" --tls-cert="${HELM_STR_TLS_CERT}"
 fi
-if [ -n "${TLS_HOSTNAME}" ]; then
-  set -- "$@" --tls-hostname="${TLS_HOSTNAME}"
+if [ -n "${HELM_STR_TLS_HOSTNAME}" ]; then
+  set -- "$@" --tls-hostname="${HELM_STR_TLS_HOSTNAME}"
 fi
-if [ -n "${TLS_KEY}" ]; then
-  set -- "$@" --tls-key="${TLS_KEY}"
+if [ -n "${HELM_STR_TLS_KEY}" ]; then
+  set -- "$@" --tls-key="${HELM_STR_TLS_KEY}"
 fi
-if [ "${TLS_VERIFY}" == "true" ]; then
+if [ "${HELM_BOOL_TLS_VERIFY}" -eq "1" ]; then
   set -- "$@" --tls-verify
 fi
-if [ -n "${TILLER_NAMESPACE}" ]; then
-  set -- "$@" --tiller-namespace "${TILLER_NAMESPACE}"
+if [ -n "${HELM_STR_TILLER_NAMESPACE}" ]; then
+  set -- "$@" --tiller-namespace "${HELM_STR_TILLER_NAMESPACE}"
 fi
 
 VERSION_2_MATCH="$(helm version --short -c | grep 'Client: v2' || true)"
 if [ -n "${VERSION_2_MATCH}" ]; then
-  if [ "${PURGE}" == "true" ]; then
+  if [ "${HELM_BOOL_PURGE}" -eq "1" ]; then
     set -- "$@" --purge
   fi
 else
-  if [ "${KEEP_HISTORY}" == "true" ]; then
+  if [ "${HELM_BOOL_KEEP_HISTORY}" -eq "1" ]; then
     set -- "$@" --keep-history
   fi
 fi
-helm delete "$@" "${PARAM_RELEASE_NAME}"
+helm delete "$@" "${HELM_STR_RELEASE_NAME}"
+set +x

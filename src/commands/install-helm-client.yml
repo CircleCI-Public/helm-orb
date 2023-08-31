@@ -17,6 +17,6 @@ steps:
   - run:
       name: Install and init the helm client (if necessary)
       environment:
-        VERSION: << parameters.version >>
-        STABLE_REPO_URL: << parameters.stable-repo-url >>
+        HELM_STR_VERSION: << parameters.version >>
+        HELM_STR_STABLE_REPO_URL: << parameters.stable-repo-url >>
       command: <<include(scripts/install-helm-client.sh)>>

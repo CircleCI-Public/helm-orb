@@ -1,10 +1,14 @@
+#!/bin/bash
+HELM_STR_VERSION="$(echo "${HELM_STR_VERSION}" | circleci env subst)"
+
+set -x
 if command -v helm &> /dev/null; then
     echo "helm is already installed"
     exit 0
 fi
 
-if [ -n "${VERSION}" ]; then
-  set -- "$@" --version "${VERSION}"
+if [ -n "${HELM_STR_VERSION}" ]; then
+  set -- "$@" --version "${HELM_STR_VERSION}"
 fi
 
 INSTALL_SCRIPT="https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3"
@@ -12,3 +16,4 @@ INSTALL_SCRIPT="https://raw.githubusercontent.com/helm/helm/master/scripts/get-h
 curl "${INSTALL_SCRIPT}" > get_helm.sh
 chmod 700 get_helm.sh
 ./get_helm.sh "$@"
+set +x

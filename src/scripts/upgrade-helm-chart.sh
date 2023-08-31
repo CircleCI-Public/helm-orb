@@ -1,44 +1,60 @@
-if [ -n "${ORB_PARAM_NAMESPACE}" ]; then
-  set -- "$@" --namespace="${ORB_PARAM_NAMESPACE}"
+#!/bin/bash
+HELM_STR_TIMEOUT="$(echo "${HELM_STR_TIMEOUT}" | circleci env subst)"
+HELM_STR_NAMESPACE="$(echo "${HELM_STR_NAMESPACE}" | circleci env subst)"
+HELM_STR_DEVEL="$(echo "${HELM_STR_DEVEL}" | circleci env subst)"
+HELM_STR_VALUES="$(echo "${HELM_STR_VALUES}" | circleci env subst)"
+HELM_STR_VERSION="$(echo "${HELM_STR_VERSION}" | circleci env subst)"
+HELM_STR_VALUES_TO_OVERRIDE="$(echo "${HELM_STR_VALUES_TO_OVERRIDE}" | circleci env subst)"
+HELM_STR_CHART="$(echo "${HELM_STR_CHART}" | circleci env subst)"
+HELM_STR_RELEASE_NAME="$(echo "${HELM_STR_RELEASE_NAME}" | circleci env subst)"
+HELM_STR_ADD_REPO="$(echo "${HELM_STR_ADD_REPO}" | circleci env subst)"
+
+set -x
+if [ -n "${HELM_STR_NAMESPACE}" ]; then
+  set -- "$@" --namespace="${HELM_STR_NAMESPACE}"
 fi
-if [ -n "${TIMEOUT}" ]; then
-  set -- "$@" --timeout "${TIMEOUT}"
+if [ -n "${HELM_STR_TIMEOUT}" ]; then
+  set -- "$@" --timeout "${HELM_STR_TIMEOUT}"
 fi
-if [ -n "${NO_HOOKS}" ]; then
-  set -- "$@" --no-hooks="${NO_HOOKS}"
+if [ "${HELM_BOOL_NO_HOOKS}" = "1" ]; then
+  set -- "$@" --no-hooks
 fi
-if [ "${RECREATE_PODS}"  == "true" ]; then
+if [ "${HELM_BOOL_RECREATE_PODS}"  -eq "1" ]; then
   set -- "$@" --recreate-pods
 fi
-if [ "${ATOMIC}" == "true" ]; then
+if [ "${HELM_BOOL_ATOMIC}" -eq "1" ]; then
   set -- "$@" --atomic
 fi
-if [ "${ORB_PARAM_WAIT}" == "true" ]; then
+if [ "${HELM_BOOL_WAIT}" -eq "1" ]; then
   set -- "$@" --wait
 fi
-if [ -n "${DEVEL}" ]; then
-  set -- "$@" --devel "${DEVEL}"
+if [ -n "${HELM_STR_DEVEL}" ]; then
+  set -- "$@" --devel "${HELM_STR_DEVEL}"
 fi
-if [ "${DRY_RUN}" == "true" ]; then
+if [ "${HELM_BOOL_DRY_RUN}" -eq "1" ]; then
   set -- "$@" --dry-run
 fi
-if [ "${RESET_VALUES}" == "true" ]; then
+if [ "${HELM_BOOL_RESET_VALUES}" -eq "1" ]; then
   set -- "$@" --reset-values
 fi
-if [ "${REUSE_VALUES}" == "true" ]; then
+if [ "${HELM_BOOL_REUSE_VALUES}" -eq "1" ]; then
   set -- "$@" --reuse-values
 fi
-if [ -n "${VALUES}" ]; then
-  set -- "$@" --values "$(eval ${VALUES})"
+if [ -n "${HELM_STR_VALUES}" ]; then
+  set -- "$@" --values "${HELM_STR_VALUES}"
 fi
-if [ -n "${VALUES_TO_OVERRIDE}" ]; then
-  set -- "$@" --set "$(eval ${VALUES_TO_OVERRIDE})"
+if [ -n "${HELM_STR_VALUES_TO_OVERRIDE}" ]; then
+  set -- "$@" --set "${HELM_STR_VALUES_TO_OVERRIDE}"
 fi
-if [ -n "${VERSION}" ]; then
-  set -- "$@" --version="${VERSION}"
+if [ -n "${HELM_STR_VERSION}" ]; then
+  set -- "$@" --version="${HELM_STR_VERSION}"
+fi
+if [ "${HELM_BOOL_WAIT_FOR_JOBS}" -eq "1" ]; then
+  set -- "$@" --wait-for-jobs
 fi
 
-helm repo add "${ORB_PARAM_RELEASE_NAME}" "${ORB_PARAM_REPO}"
+helm repo add "${HELM_STR_RELEASE_NAME}" "${HELM_STR_ADD_REPO}"
 helm repo update
 
-helm upgrade --install "${ORB_PARAM_RELEASE_NAME}" "${ORB_PARAM_CHART}" "$@"
+helm upgrade --install "${HELM_STR_RELEASE_NAME}" "${HELM_STR_CHART}" "$@"
+set +x
