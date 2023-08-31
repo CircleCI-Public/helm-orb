@@ -232,9 +232,9 @@ workflows:
       - orb-tools/pack:
           filters: *release-filters
       - orb-tools/publish:
-          orb-name: circleci/helm
-          vcs-type: << pipeline.project.type >>
-          pub-type: production
+          orb_name: circleci/helm
+          vcs_type: << pipeline.project.type >>
+          pub_type: production
           enable_pr_comment: true
           requires:
             - orb-tools/pack
