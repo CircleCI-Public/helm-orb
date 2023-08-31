@@ -1,10 +1,11 @@
+#!/bin/bash
 if command -v helm &> /dev/null; then
     echo "helm is already installed"
     exit 0
 fi
 
-if [ -n "${VERSION}" ]; then
-  set -- "$@" --version "${VERSION}"
+if [ -n "${HELM_STR_VERSION}" ]; then
+  set -- "$@" --version "${HELM_STR_VERSION}"
 fi
 
 INSTALL_SCRIPT="https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3"

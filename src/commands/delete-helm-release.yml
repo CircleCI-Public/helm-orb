@@ -86,18 +86,17 @@ steps:
   - run:
       name: Delete helm release
       environment:
-        RELEASE_NAME: << parameters.release-name >>
-        PURGE: << parameters.purge >>
-        KEEP_HISTORY: << parameters.keep-history >>
-        TIMEOUT: << parameters.timeout >>
-        NAMESPACE: << parameters.namespace >>
-        TLS: << parameters.tls >>
-        TLS_CA_CERT: << parameters.tls-ca-cert >>
-        TLS_CERT: << parameters.tls-cert >>
-        TLS_HOSTNAME: << parameters.tls-hostname >>
-        TLS_KEY: << parameters.tls-key >>
-        TLS_VERIFY: << parameters.tls-verify >>
-        TILLER_NAMESPACE: << parameters.tiller-namespace >>
-        PARAM_RELEASE_NAME: << parameters.release-name >>
+        HELM_STR_RELEASE_NAME: << parameters.release-name >>
+        HELM_BOOL_PURGE: << parameters.purge >>
+        HELM_BOOL_KEEP_HISTORY: << parameters.keep-history >>
+        HELM_STR_TIMEOUT: << parameters.timeout >>
+        HELM_STR_NAMESPACE: << parameters.namespace >>
+        HELM_BOOL_TLS: << parameters.tls >>
+        HELM_STR_TLS_CA_CERT: << parameters.tls-ca-cert >>
+        HELM_STR_TLS_CERT: << parameters.tls-cert >>
+        HELM_STR_TLS_HOSTNAME: << parameters.tls-hostname >>
+        HELM_STR_TLS_KEY: << parameters.tls-key >>
+        HELM_BOOL_TLS_VERIFY: << parameters.tls-verify >>
+        HELM_STR_TILLER_NAMESPACE: << parameters.tiller-namespace >>
       command: <<include(scripts/delete-helm-release.sh)>>
       no_output_timeout: << parameters.no-output-timeout >>

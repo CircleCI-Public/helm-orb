@@ -172,7 +172,7 @@ workflows:
       - install-helm-chart-on-eks-cluster:
           name: install-helm-chart-on-eks-cluster-helm4
           helm-version: v3.8.2
-          test repo update
+          # test repo update
           update-repositories: true
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm4-eks
           add-repo: https://prometheus-community.github.io/helm-charts
