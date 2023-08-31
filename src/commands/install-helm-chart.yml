@@ -36,7 +36,7 @@ parameters:
     description: |
       Whether to wait for the installation or upgrade to be complete
     type: boolean
-    default: true
+    default: false
   wait_for_jobs:
     description: |
       Whether to wait for all jobs associated with deployment to be complete before marking the release as successful.
