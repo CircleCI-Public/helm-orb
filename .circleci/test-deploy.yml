@@ -210,7 +210,7 @@ workflows:
           requires:
             - delete-helm-release-on-eks-cluster-helm4
       - delete-helm-release-on-eks-cluster:
-          name: delete_helm_release-on-eks-cluster-again-helm4
+          name: delete-helm-release-on-eks-cluster-again-helm4
           helm_version: v3.8.2
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm4-eks
           # test timeout
