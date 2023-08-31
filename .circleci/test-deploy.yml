@@ -218,7 +218,7 @@ workflows:
           context: CPE_ORBS_AWS
           filters: *filters
           requires:
-            - reinstall_helm_chart-on-eks-cluster-helm4
+            - reinstall-helm-chart-on-eks-cluster-helm4
       - aws-eks/delete-cluster:
           name: delete-cluster-helm4
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm4-eks
