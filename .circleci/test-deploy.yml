@@ -169,8 +169,8 @@ workflows:
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm4-eks
           filters: *filters
           context: CPE_ORBS_AWS
-      - install_helm_chart-on-eks-cluster:
-          name: install_helm_chart-on-eks-cluster-helm4
+      - install-helm-chart-on-eks-cluster:
+          name: install-helm-chart-on-eks-cluster-helm4
           helm_version: v3.8.2
           # test repo update
           update_repositories: true
@@ -181,25 +181,25 @@ workflows:
           filters: *filters
           requires:
             - create-cluster-helm4
-      - upgrade_helm_chart-on-eks-cluster:
-          name: upgrade_helm_chart-on-eks-cluster-helm4
+      - upgrade-helm-chart-on-eks-cluster:
+          name: upgrade-helm-chart-on-eks-cluster-helm4
           helm_version: v3.8.2
           update_repositories: false
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm4-eks
           context: CPE_ORBS_AWS
           filters: *filters
           requires:
-            - install_helm_chart-on-eks-cluster-helm4
-      - delete_helm_release-on-eks-cluster:
-          name: delete_helm_release-on-eks-cluster-helm4
+            - install-helm-chart-on-eks-cluster-helm4
+      - delete-helm-release-on-eks-cluster:
+          name: delete-helm-release-on-eks-cluster-helm4
           helm_version: v3.8.2
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm4-eks
           context: CPE_ORBS_AWS
           filters: *filters
           requires:
-            - upgrade_helm_chart-on-eks-cluster-helm4
-      - install_helm_chart-on-eks-cluster:
-          name: reinstall_helm_chart-on-eks-cluster-helm4
+            - upgrade-helm-chart-on-eks-cluster-helm4
+      - install-helm-chart-on-eks-cluster:
+          name: reinstall-helm-chart-on-eks-cluster-helm4
           helm_version: v3.8.2
           # Test auto-generated release name
           release_name: prometheus-community
@@ -208,8 +208,8 @@ workflows:
           context: CPE_ORBS_AWS
           filters: *filters
           requires:
-            - delete_helm_release-on-eks-cluster-helm4
-      - delete_helm_release-on-eks-cluster:
+            - delete-helm-release-on-eks-cluster-helm4
+      - delete-helm-release-on-eks-cluster:
           name: delete_helm_release-on-eks-cluster-again-helm4
           helm_version: v3.8.2
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm4-eks
@@ -227,7 +227,7 @@ workflows:
           context: CPE_ORBS_AWS
           filters: *filters
           requires:
-            - delete_helm_release-on-eks-cluster-again-helm4
+            - delete-helm-release-on-eks-cluster-again-helm4
       # Make sure to include "filters: *filters" in every test job you want to run as part of your deployment.
       - orb-tools/pack:
           filters: *release-filters
@@ -242,11 +242,11 @@ workflows:
             - helm-client-install-specific-version
             - helm-client-install-latest
             - create-cluster-helm4
-            - install_helm_chart-on-eks-cluster-helm4
-            - upgrade_helm_chart-on-eks-cluster-helm4
-            - delete_helm_release-on-eks-cluster-helm4
-            - reinstall_helm_chart-on-eks-cluster-helm4
-            - delete_helm_release-on-eks-cluster-again-helm4
+            - install-helm-chart-on-eks-cluster-helm4
+            - upgrade-helm-chart-on-eks-cluster-helm4
+            - delete-helm-release-on-eks-cluster-helm4
+            - reinstall-helm-chart-on-eks-cluster-helm4
+            - delete-helm-release-on-eks-cluster-again-helm4
             - delete-cluster-helm4
           context: orb-publisher
           filters: *release-filters
