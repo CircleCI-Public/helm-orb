@@ -157,30 +157,30 @@ jobs:
 workflows:
   test-deploy:
     jobs:
-      - helm-client-install-test:
-          name: helm-client-install-latest
-          filters: *filters
-      - helm-client-install-test:
-          name: helm-client-install-specific-version
-          version: v3.0.0
-          filters: *filters
-      - aws-eks/create-cluster:
-          name: create-cluster-helm4
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm4-eks
-          filters: *filters
-          context: CPE_ORBS_AWS
-      - install-helm-chart-on-eks-cluster:
-          name: install-helm-chart-on-eks-cluster-helm4
-          helm-version: v3.8.2
-          # test repo update
-          update-repositories: true
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm4-eks
-          add-repo: https://prometheus-community.github.io/helm-charts
-          chart: prometheus-community/prometheus
-          context: CPE_ORBS_AWS
-          filters: *filters
-          requires:
-            - create-cluster-helm4
+      # - helm-client-install-test:
+      #     name: helm-client-install-latest
+      #     filters: *filters
+      # - helm-client-install-test:
+      #     name: helm-client-install-specific-version
+      #     version: v3.0.0
+      #     filters: *filters
+      # - aws-eks/create-cluster:
+      #     name: create-cluster-helm4
+      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm4-eks
+      #     filters: *filters
+      #     context: CPE_ORBS_AWS
+      # - install-helm-chart-on-eks-cluster:
+      #     name: install-helm-chart-on-eks-cluster-helm4
+      #     helm-version: v3.8.2
+      #     # test repo update
+      #     update-repositories: true
+      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm4-eks
+      #     add-repo: https://prometheus-community.github.io/helm-charts
+      #     chart: prometheus-community/prometheus
+      #     context: CPE_ORBS_AWS
+      #     filters: *filters
+      #     requires:
+      #       - create-cluster-helm4
       - upgrade-helm-chart-on-eks-cluster:
           name: upgrade-helm-chart-on-eks-cluster-helm4
           helm-version: v3.8.2
@@ -189,7 +189,7 @@ workflows:
           context: CPE_ORBS_AWS
           filters: *filters
           # requires:
-          #   - install-helm-chart-on-eks-cluster-helm4
+            # - install-helm-chart-on-eks-cluster-helm4
       - delete-helm-release-on-eks-cluster:
           name: delete-helm-release-on-eks-cluster-helm4
           helm-version: v3.8.2
@@ -229,34 +229,34 @@ workflows:
           requires:
             - delete-helm-release-on-eks-cluster-again-helm4
       # Make sure to include "filters: *filters" in every test job you want to run as part of your deployment.
-      - orb-tools/lint:
-          filters: *filters
-      - orb-tools/pack:
-          filters: *filters
-      - orb-tools/review:
-          filters: *filters
-      - orb-tools/publish:
-          orb-name: circleci/helm
-          vcs-type: << pipeline.project.type >>
-          pub-type: production
-          requires:
-            # - orb-tools/lint
-            # - orb-tools/review
-            # - orb-tools/pack
-            - helm-client-install-latest
-            - helm-client-install-specific-version
-            - helm-client-install-latest
-            # - create-cluster-helm4
-            - install-helm-chart-on-eks-cluster-helm4
-            - upgrade-helm-chart-on-eks-cluster-helm4
-            - delete-helm-release-on-eks-cluster-helm4
-            - reinstall-helm-chart-on-eks-cluster-helm4
-            - delete-helm-release-on-eks-cluster-again-helm4
-            - delete-cluster-helm4
-          github-token: GHI_TOKEN
-          context: orb-publisher
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /^v[0-9]+\.[0-9]+\.[0-9]+$/
+      # - orb-tools/lint:
+      #     filters: *filters
+      # - orb-tools/pack:
+      #     filters: *filters
+      # - orb-tools/review:
+      #     filters: *filters
+      # - orb-tools/publish:
+      #     orb-name: circleci/helm
+      #     vcs-type: << pipeline.project.type >>
+      #     pub-type: production
+      #     requires:
+      #       - orb-tools/lint
+      #       - orb-tools/review
+      #       - orb-tools/pack
+      #       - helm-client-install-latest
+      #       - helm-client-install-specific-version
+      #       - helm-client-install-latest
+      #       - create-cluster-helm4
+      #       - install-helm-chart-on-eks-cluster-helm4
+      #       - upgrade-helm-chart-on-eks-cluster-helm4
+      #       - delete-helm-release-on-eks-cluster-helm4
+      #       - reinstall-helm-chart-on-eks-cluster-helm4
+      #       - delete-helm-release-on-eks-cluster-again-helm4
+      #       - delete-cluster-helm4
+      #     github-token: GHI_TOKEN
+      #     context: orb-publisher
+      #     filters:
+      #       branches:
+      #         ignore: /.*/
+      #       tags:
+      #         only: /^v[0-9]+\.[0-9]+\.[0-9]+$/

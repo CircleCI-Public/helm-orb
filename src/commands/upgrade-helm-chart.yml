@@ -31,7 +31,12 @@ parameters:
     description: |
       Whether to wait for the installation to be complete.
     type: boolean
-    default: true
+    default: false
+  wait_for_jobs:
+    description: |
+      Whether to wait for all jobs associated with deployment to be complete before marking the release as successful.
+    type: boolean
+    default: false
   timeout:
     description: |
       If timeout is reached, the release will be marked as FAILED.
@@ -131,5 +136,6 @@ steps:
         HELM_STR_CHART: << parameters.chart >>
         HELM_STR_RELEASE_NAME: << parameters.release-name >>
         HELM_STR_ADD_REPO: << parameters.add-repo >>
+        HELM_BOOL_WAIT_FOR_JOBS: << parameters.wait_for_jobs >>
       command: <<include(scripts/upgrade-helm-chart.sh)>>
       no_output_timeout: << parameters.no-output-timeout >>

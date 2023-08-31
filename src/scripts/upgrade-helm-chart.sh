@@ -1,11 +1,22 @@
 #!/bin/bash
+HELM_STR_TIMEOUT="$(echo "${HELM_STR_TIMEOUT}" | circleci env subst)"
+HELM_STR_NAMESPACE="$(echo "${HELM_STR_NAMESPACE}" | circleci env subst)"
+HELM_STR_DEVEL="$(echo "${HELM_STR_DEVEL}" | circleci env subst)"
+HELM_STR_VALUES="$(echo "${HELM_STR_VALUES}" | circleci env subst)"
+HELM_STR_VERSION="$(echo "${HELM_STR_VERSION}" | circleci env subst)"
+HELM_STR_VALUES_TO_OVERRIDE="$(echo "${HELM_STR_VALUES_TO_OVERRIDE}" | circleci env subst)"
+HELM_STR_CHART="$(echo "${HELM_STR_CHART}" | circleci env subst)"
+HELM_STR_RELEASE_NAME="$(echo "${HELM_STR_RELEASE_NAME}" | circleci env subst)"
+HELM_STR_ADD_REPO="$(echo "${HELM_STR_ADD_REPO}" | circleci env subst)"
+
+set -x
 if [ -n "${HELM_STR_NAMESPACE}" ]; then
   set -- "$@" --namespace="${HELM_STR_NAMESPACE}"
 fi
 if [ -n "${HELM_STR_TIMEOUT}" ]; then
   set -- "$@" --timeout "${HELM_STR_TIMEOUT}"
 fi
-if [ -n "${HELM_BOOL_NO_HOOKS}" ]; then
+if [ "${HELM_BOOL_NO_HOOKS}" = "1" ]; then
   set -- "$@" --no-hooks="${HELM_BOOL_NO_HOOKS}"
 fi
 if [ "${HELM_BOOL_RECREATE_PODS}"  -eq "1" ]; then
@@ -30,16 +41,20 @@ if [ "${HELM_BOOL_REUSE_VALUES}" -eq "1" ]; then
   set -- "$@" --reuse-values
 fi
 if [ -n "${HELM_STR_VALUES}" ]; then
-  set -- "$@" --values "$(eval ${HELM_STR_VALUES})"
+  set -- "$@" --values "${HELM_STR_VALUES}"
 fi
 if [ -n "${HELM_STR_VALUES_TO_OVERRIDE}" ]; then
-  set -- "$@" --set "$(eval ${HELM_STR_VALUES_TO_OVERRIDE})"
+  set -- "$@" --set "${HELM_STR_VALUES_TO_OVERRIDE}"
 fi
 if [ -n "${HELM_STR_VERSION}" ]; then
   set -- "$@" --version="${HELM_STR_VERSION}"
+fi
+if [ "${HELM_BOOL_WAIT_FOR_JOBS}" -eq "1" ]; then
+  set -- "$@" --wait-for-jobs
 fi
 
 helm repo add "${HELM_STR_RELEASE_NAME}" "${HELM_STR_ADD_REPO}"
 helm repo update
 
 helm upgrade --install "${HELM_STR_RELEASE_NAME}" "${HELM_STR_CHART}" "$@"
+set +x
