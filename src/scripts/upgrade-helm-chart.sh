@@ -17,7 +17,7 @@ if [ -n "${HELM_STR_TIMEOUT}" ]; then
   set -- "$@" --timeout "${HELM_STR_TIMEOUT}"
 fi
 if [ "${HELM_BOOL_NO_HOOKS}" = "1" ]; then
-  set -- "$@" --no-hooks="${HELM_BOOL_NO_HOOKS}"
+  set -- "$@" --no-hooks
 fi
 if [ "${HELM_BOOL_RECREATE_PODS}"  -eq "1" ]; then
   set -- "$@" --recreate-pods
