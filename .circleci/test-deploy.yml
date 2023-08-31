@@ -1,7 +1,6 @@
 version: 2.1
 orbs:
   aws-eks: circleci/aws-eks@2.2
-  kubernetes: circleci/kubernetes@1.3.0
   orb-tools: circleci/orb-tools@12.0
   helm: {}
 filters: &filters
