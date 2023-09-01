@@ -52,6 +52,9 @@ fi
 if [ "${HELM_BOOL_WAIT_FOR_JOBS}" -eq "1" ]; then
   set -- "$@" --wait-for-jobs
 fi
+if [ "${HELM_BOOL_FORCE}" -eq "1" ]; then
+  set -- "$@" --force
+fi
 
 helm repo add "${HELM_STR_RELEASE_NAME}" "${HELM_STR_ADD_REPO}"
 helm repo update
