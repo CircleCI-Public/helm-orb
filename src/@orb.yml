@@ -7,5 +7,3 @@ display:
   home_url: https://helm.sh/
   source_url: https://github.com/CircleCI-Public/helm-orb
 
-orbs:
-  kubernetes: circleci/kubernetes@0.2.0

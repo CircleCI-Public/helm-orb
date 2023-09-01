@@ -4,7 +4,7 @@ description: |
   and kubeconfig should be configured to connect to the cluster.
 
 parameters:
-  release-name:
+  release_name:
     description: |
       Specify the release to be deleted.
     type: string
@@ -15,7 +15,7 @@ parameters:
       later use
     type: boolean
     default: false
-  keep-history:
+  keep_history:
     description: |
       Effective for helm 3 commands only.
       Retains release history.
@@ -38,42 +38,42 @@ parameters:
       Enable TLS for the request
     type: boolean
     default: false
-  tls-ca-cert:
+  tls_ca_cert:
     description: |
       Path to TLS CA certificate file
     type: string
     default: ""
-  tls-cert:
+  tls_cert:
     description: |
       Path to TLS certificate file
     type: string
     default: ""
-  tls-hostname:
+  tls_hostname:
     description: |
       The server name used to verify the hostname on the returned
       certificates from the server
     type: string
     default: ""
-  tls-key:
+  tls_key:
     description: |
       Path to TLS key file
     type: string
     default: ""
-  tls-verify:
+  tls_verify:
     description: |
       Enable TLS for request and verify remote
     type: boolean
     default: false
-  tiller-namespace:
+  tiller_namespace:
     description: |
       Specify the namespace of Tiller
     type: string
     default: ""
-  helm-version:
+  helm_version:
     type: string
     default: "v3.8.2"
     description: the helm client version to install. e.g. v3.0.0.
-  no-output-timeout:
+  no_output_timeout:
     description: |
       Elapsed time that the helm command can run on CircleCI without output.
       The string is a decimal with unit suffix, such as “20m”, “1.25h”, “5s”
@@ -81,22 +81,22 @@ parameters:
     default: "30m"
 
 steps:
-  - install-helm-client:
-      version: << parameters.helm-version >>
+  - install_helm_client:
+      version: << parameters.helm_version >>
   - run:
       name: Delete helm release
       environment:
-        HELM_STR_RELEASE_NAME: << parameters.release-name >>
+        HELM_STR_RELEASE_NAME: << parameters.release_name >>
         HELM_BOOL_PURGE: << parameters.purge >>
-        HELM_BOOL_KEEP_HISTORY: << parameters.keep-history >>
+        HELM_BOOL_KEEP_HISTORY: << parameters.keep_history >>
         HELM_STR_TIMEOUT: << parameters.timeout >>
         HELM_STR_NAMESPACE: << parameters.namespace >>
         HELM_BOOL_TLS: << parameters.tls >>
-        HELM_STR_TLS_CA_CERT: << parameters.tls-ca-cert >>
-        HELM_STR_TLS_CERT: << parameters.tls-cert >>
-        HELM_STR_TLS_HOSTNAME: << parameters.tls-hostname >>
-        HELM_STR_TLS_KEY: << parameters.tls-key >>
-        HELM_BOOL_TLS_VERIFY: << parameters.tls-verify >>
-        HELM_STR_TILLER_NAMESPACE: << parameters.tiller-namespace >>
-      command: <<include(scripts/delete-helm-release.sh)>>
-      no_output_timeout: << parameters.no-output-timeout >>
+        HELM_STR_TLS_CA_CERT: << parameters.tls_ca_cert >>
+        HELM_STR_TLS_CERT: << parameters.tls_cert >>
+        HELM_STR_TLS_HOSTNAME: << parameters.tls_hostname >>
+        HELM_STR_TLS_KEY: << parameters.tls_key >>
+        HELM_BOOL_TLS_VERIFY: << parameters.tls_verify >>
+        HELM_STR_TILLER_NAMESPACE: << parameters.tiller_namespace >>
+      command: <<include(scripts/delete_helm_release.sh)>>
+      no_output_timeout: << parameters.no_output_timeout >>

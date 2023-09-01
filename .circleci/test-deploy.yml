@@ -1,15 +1,16 @@
 version: 2.1
 orbs:
   aws-eks: circleci/aws-eks@2.2
-  cli: circleci/circleci-cli@0.1.9
-  kubernetes: circleci/kubernetes@1.3.0
-  helm: circleci/helm@dev:<<pipeline.git.revision>>
-  orb-tools: circleci/orb-tools@11.1
-
+  orb-tools: circleci/orb-tools@12.0
+  helm: {}
 filters: &filters
   tags:
     only: /.*/
-
+release-filters: &release-filters
+  branches:
+    ignore: /.*/
+  tags:
+    only: /^v[0-9]+\.[0-9]+\.[0-9]+$/
 jobs:
   helm-client-install-test:
     docker:
@@ -20,7 +21,7 @@ jobs:
         description: version to install
         default: ""
     steps:
-      - helm/install-helm-client:
+      - helm/install_helm_client:
           version: << parameters.version >>
   install-helm-on-eks-cluster:
     docker:
@@ -37,25 +38,25 @@ jobs:
     docker:
       - image: cimg/python:3.10
     parameters:
-      release-name:
+      release_name:
         type: string
         default: "prometheus-community"
       cluster-name:
         type: string
         description: Cluster name
-      helm-version:
+      helm_version:
         type: string
         default: "v3.8.2"
         description: the helm client version to install. e.g. v3.0.0
-      add-repo:
+      add_repo:
         type: string
         default: "https://prometheus-community.github.io/helm-charts"
         description: the helm chart repository url to use
-      chart: 
+      chart:
         type: string
         default: "prometheus-community/prometheus"
         description: the helm chart to install
-      update-repositories:
+      update_repositories:
         description: |
           Choose to update repositories by running helm repo update.
         type: boolean
@@ -65,41 +66,41 @@ jobs:
           cluster-name: << parameters.cluster-name >>
           install-kubectl: true
           aws-region: us-west-2
-      - helm/install-helm-client:
-          version: << parameters.helm-version >>
+      - helm/install_helm_client:
+          version: << parameters.helm_version >>
       - run:
           name: Install cncf stable repo
           command: |
             helm repo add stable http://cncf.gitlab.io/stable
-      - helm/install-helm-chart:
+      - helm/install_helm_chart:
           chart: << parameters.chart >>
-          add-repo: << parameters.add-repo >>
-          release-name: << parameters.release-name >>
-          helm-version: << parameters.helm-version >>
-          update-repositories: << parameters.update-repositories >>
+          add_repo: << parameters.add_repo >>
+          release_name: << parameters.release_name >>
+          helm_version: << parameters.helm_version >>
+          update_repositories: << parameters.update_repositories >>
   upgrade-helm-chart-on-eks-cluster:
     docker:
       - image: cimg/python:3.10
     parameters:
-      release-name:
+      release_name:
         type: string
         default: "prometheus-community"
-      add-repo:
+      add_repo:
         type: string
         default: "https://prometheus-community.github.io/helm-charts"
         description: the helm chart repository url to use
       cluster-name:
         type: string
         description: Cluster name
-      helm-version:
+      helm_version:
         type: string
         default: "v3.8.2"
         description: the helm client version to install. e.g. v3.0.0
-      chart: 
+      chart:
         type: string
         default: "prometheus-community/prometheus"
         description: the helm chart to install
-      update-repositories:
+      update_repositories:
         description: |
           Choose to update repositories by running helm repo update.
         type: boolean
@@ -109,20 +110,20 @@ jobs:
           cluster-name: << parameters.cluster-name >>
           install-kubectl: true
           aws-region: us-west-2
-      - helm/install-helm-client:
-          version: << parameters.helm-version >>
+      - helm/install_helm_client:
+          version: << parameters.helm_version >>
       - run:
           name: Install cncf stable repo
           command: |
             helm repo add stable http://cncf.gitlab.io/stable
-      - helm/upgrade-helm-chart:
-          add-repo: << parameters.add-repo >>
+      - helm/upgrade_helm_chart:
+          add_repo: << parameters.add_repo >>
           chart: << parameters.chart >>
-          release-name: << parameters.release-name >>
-          helm-version: << parameters.helm-version >>
-          update-repositories: << parameters.update-repositories >>
-          # test specifying no-output-timeout
-          no-output-timeout: 25m
+          release_name: << parameters.release_name >>
+          helm_version: << parameters.helm_version >>
+          update_repositories: << parameters.update_repositories >>
+          # test specifying no_output_timeout
+          no_output_timeout: 25m
   delete-helm-release-on-eks-cluster:
     docker:
       - image: cimg/python:3.10
@@ -130,7 +131,7 @@ jobs:
       cluster-name:
         type: string
         description: Cluster name
-      helm-version:
+      helm_version:
         type: string
         default: "v3.8.2"
         description: the helm client version to install. e.g. v3.0.0
@@ -142,17 +143,17 @@ jobs:
           cluster-name: << parameters.cluster-name >>
           install-kubectl: true
           aws-region: us-west-2
-      - helm/install-helm-client:
-          version: << parameters.helm-version >>
+      - helm/install_helm_client:
+          version: << parameters.helm_version >>
       - run:
           name: Install cncf stable repo
           command: |
             helm repo add stable http://cncf.gitlab.io/stable
-      - helm/delete-helm-release:
-          release-name: prometheus-community
+      - helm/delete_helm_release:
+          release_name: prometheus-community
           purge: true
           timeout: << parameters.timeout >>
-          helm-version: << parameters.helm-version >>
+          helm_version: << parameters.helm_version >>
 workflows:
   test-deploy:
     jobs:
@@ -170,11 +171,11 @@ workflows:
           context: CPE_ORBS_AWS
       - install-helm-chart-on-eks-cluster:
           name: install-helm-chart-on-eks-cluster-helm4
-          helm-version: v3.8.2
+          helm_version: v3.8.2
           # test repo update
-          update-repositories: true
+          update_repositories: true
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm4-eks
-          add-repo: https://prometheus-community.github.io/helm-charts
+          add_repo: https://prometheus-community.github.io/helm-charts
           chart: prometheus-community/prometheus
           context: CPE_ORBS_AWS
           filters: *filters
@@ -182,8 +183,8 @@ workflows:
             - create-cluster-helm4
       - upgrade-helm-chart-on-eks-cluster:
           name: upgrade-helm-chart-on-eks-cluster-helm4
-          helm-version: v3.8.2
-          update-repositories: false
+          helm_version: v3.8.2
+          update_repositories: false
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm4-eks
           context: CPE_ORBS_AWS
           filters: *filters
@@ -191,7 +192,7 @@ workflows:
             - install-helm-chart-on-eks-cluster-helm4
       - delete-helm-release-on-eks-cluster:
           name: delete-helm-release-on-eks-cluster-helm4
-          helm-version: v3.8.2
+          helm_version: v3.8.2
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm4-eks
           context: CPE_ORBS_AWS
           filters: *filters
@@ -199,10 +200,10 @@ workflows:
             - upgrade-helm-chart-on-eks-cluster-helm4
       - install-helm-chart-on-eks-cluster:
           name: reinstall-helm-chart-on-eks-cluster-helm4
-          helm-version: v3.8.2
+          helm_version: v3.8.2
           # Test auto-generated release name
-          release-name: prometheus-community
-          add-repo: https://prometheus-community.github.io/helm-charts
+          release_name: prometheus-community
+          add_repo: https://prometheus-community.github.io/helm-charts
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm4-eks
           context: CPE_ORBS_AWS
           filters: *filters
@@ -210,7 +211,7 @@ workflows:
             - delete-helm-release-on-eks-cluster-helm4
       - delete-helm-release-on-eks-cluster:
           name: delete-helm-release-on-eks-cluster-again-helm4
-          helm-version: v3.8.2
+          helm_version: v3.8.2
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm4-eks
           # test timeout
           timeout: "600s"
@@ -228,19 +229,14 @@ workflows:
           requires:
             - delete-helm-release-on-eks-cluster-again-helm4
       # Make sure to include "filters: *filters" in every test job you want to run as part of your deployment.
-      - orb-tools/lint:
-          filters: *filters
       - orb-tools/pack:
-          filters: *filters
-      - orb-tools/review:
-          filters: *filters
+          filters: *release-filters
       - orb-tools/publish:
-          orb-name: circleci/helm
-          vcs-type: << pipeline.project.type >>
-          pub-type: production
+          orb_name: circleci/helm
+          vcs_type: << pipeline.project.type >>
+          pub_type: production
+          enable_pr_comment: true
           requires:
-            - orb-tools/lint
-            - orb-tools/review
             - orb-tools/pack
             - helm-client-install-latest
             - helm-client-install-specific-version
@@ -252,10 +248,5 @@ workflows:
             - reinstall-helm-chart-on-eks-cluster-helm4
             - delete-helm-release-on-eks-cluster-again-helm4
             - delete-cluster-helm4
-          github-token: GHI_TOKEN
           context: orb-publisher
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /^v[0-9]+\.[0-9]+\.[0-9]+$/
+          filters: *release-filters
