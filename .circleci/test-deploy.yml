@@ -23,6 +23,15 @@ jobs:
     steps:
       - helm/install_helm_client:
           version: << parameters.version >>
+  helm-plugin-install-test:
+    docker:
+      - image: cimg/base:current
+    parameters:
+      helm_plugin_url:
+        type: string
+    steps:
+      - helm/install_helm_plugin:
+          version: << parameters.helm_plugin_url >>
   install-helm-on-eks-cluster:
     docker:
       - image: cimg/python:3.10
@@ -163,6 +172,10 @@ workflows:
       - helm-client-install-test:
           name: helm-client-install-specific-version
           version: v3.0.0
+          filters: *filters
+      - helm-plugin-install-test:
+          name: helm-plugin-install-env
+          helm_plugin_url: https://github.com/adamreese/helm-env
           filters: *filters
       - aws-eks/create-cluster:
           name: create-cluster-helm4
