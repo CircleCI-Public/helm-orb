@@ -137,5 +137,6 @@ steps:
         HELM_STR_RELEASE_NAME: << parameters.release_name >>
         HELM_STR_ADD_REPO: << parameters.add_repo >>
         HELM_BOOL_WAIT_FOR_JOBS: << parameters.wait_for_jobs >>
+        HELM_BOOL_FORCE: << parameters.force >>
       command: <<include(scripts/upgrade_helm_chart.sh)>>
       no_output_timeout: << parameters.no_output_timeout >>

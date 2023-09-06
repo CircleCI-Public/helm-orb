@@ -15,7 +15,7 @@ fi
 if [ -n "${HELM_STR_NAMESPACE}" ]; then
   set -- "$@" --namespace="${HELM_STR_NAMESPACE}"
 fi
-if [ "${HELM_BOOL_TLS}" -eq "1" ]; then
+if [ "${HELM_BOOL_TLS}" -eq 1 ]; then
   set -- "$@" --tls
 fi
 if [ -n "${HELM_STR_TLS_CA_CERT}" ]; then
@@ -30,7 +30,7 @@ fi
 if [ -n "${HELM_STR_TLS_KEY}" ]; then
   set -- "$@" --tls-key="${HELM_STR_TLS_KEY}"
 fi
-if [ "${HELM_BOOL_TLS_VERIFY}" -eq "1" ]; then
+if [ "${HELM_BOOL_TLS_VERIFY}" -eq 1 ]; then
   set -- "$@" --tls-verify
 fi
 if [ -n "${HELM_STR_TILLER_NAMESPACE}" ]; then
@@ -39,11 +39,11 @@ fi
 
 VERSION_2_MATCH="$(helm version --short -c | grep 'Client: v2' || true)"
 if [ -n "${VERSION_2_MATCH}" ]; then
-  if [ "${HELM_BOOL_PURGE}" -eq "1" ]; then
+  if [ "${HELM_BOOL_PURGE}" -eq 1 ]; then
     set -- "$@" --purge
   fi
 else
-  if [ "${HELM_BOOL_KEEP_HISTORY}" -eq "1" ]; then
+  if [ "${HELM_BOOL_KEEP_HISTORY}" -eq 1 ]; then
     set -- "$@" --keep-history
   fi
 fi
