@@ -11,17 +11,17 @@ parameters:
       or a path to an unpacked chart directory (e.g. ./nginx)
       or an absolute URL (e.g. https://example.com/charts/nginx-1.2.3.tgz)
     type: string
-  add-repo:
+  add_repo:
     description: |
       The url for the helm chart repository used as part of helm repo add
       command
     type: string
-  release-name:
+  release_name:
     description: |
       Specify a name for the release.
     type: string
     default: ""
-  values-to-override:
+  values_to_override:
     description: |
       Override values in a chart using the --set flag of the helm install
       command. Format: key1=val1,key2=val2
@@ -34,19 +34,24 @@ parameters:
     default: ""
   wait:
     description: |
-      Whether to wait for the installation to be complete
+      Whether to wait for the installation or upgrade to be complete
     type: boolean
-    default: true
-  update-repositories:
+    default: false
+  wait_for_jobs:
+    description: |
+      Whether to wait for all jobs associated with deployment to be complete before marking the release as successful.
+    type: boolean
+    default: false
+  update_repositories:
     description: |
       Choose to update repositories by running helm repo update.
     type: boolean
     default: true
-  helm-version:
+  helm_version:
     type: string
     default: "v3.8.2"
     description: the helm client version to install. e.g. v3.0.0
-  no-output-timeout:
+  no_output_timeout:
     description: |
       Elapsed time that the helm command can run on CircleCI without output.
       The string is a decimal with unit suffix, such as “20m”, “1.25h”, “5s”
@@ -54,23 +59,24 @@ parameters:
     default: "30m"
 
 steps:
-  - install-helm-client:
-      version: << parameters.helm-version >>
+  - install_helm_client:
+      version: << parameters.helm_version >>
   - when:
-      condition: << parameters.update-repositories >>
+      condition: << parameters.update_repositories >>
       steps:
         - run:
             name: Update repositories
             command: |
-              helm repo add <<parameters.release-name>> <<parameters.add-repo>> && \
+              helm repo add <<parameters.release_name>> <<parameters.add_repo>> && \
               helm repo update
   - run:
       name: Install chart
       environment:
-        RELEASE_NAME: << parameters.release-name >>
-        VALUES_TO_OVERRIDE: << parameters.values-to-override >>
-        NAMESPACE: << parameters.namespace >>
-        ORB_PARAM_WAIT: << parameters.wait >>
-        ORB_PARAM_CHART: << parameters.chart >>
-      command: <<include(scripts/install-helm-chart.sh)>>
-      no_output_timeout: << parameters.no-output-timeout >>
+        HELM_STR_RELEASE_NAME: << parameters.release_name >>
+        HELM_STR_VALUES_TO_OVERRIDE: << parameters.values_to_override >>
+        HELM_STR_NAMESPACE: << parameters.namespace >>
+        HELM_BOOL_WAIT: << parameters.wait >>
+        HELM_STR_CHART: << parameters.chart >>
+        HELM_BOOL_WAIT_FOR_JOBS: << parameters.wait_for_jobs >>
+      command: <<include(scripts/install_helm_chart.sh)>>
+      no_output_timeout: << parameters.no_output_timeout >>

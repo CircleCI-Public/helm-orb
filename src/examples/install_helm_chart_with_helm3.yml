@@ -10,7 +10,7 @@ usage:
     helm: circleci/helm@1.0
 
   jobs:
-    install-helm-chart:
+    install_helm_chart:
       executor: aws-eks/python
       parameters:
         cluster-name:
@@ -19,11 +19,11 @@ usage:
       steps:
         - aws-eks/update-kubeconfig-with-authenticator:
             cluster-name: << parameters.cluster-name >>
-        - helm/install-helm-chart:
-            helm-version: v3.2.4
+        - helm/install_helm_chart:
+            helm_version: v3.2.4
             chart: stable/grafana
-            release-name: grafana-release
-    delete-helm-release:
+            release_name: grafana-release
+    delete_helm_release:
       executor: aws-eks/python
       parameters:
         cluster-name:
@@ -32,9 +32,9 @@ usage:
       steps:
         - aws-eks/update-kubeconfig-with-authenticator:
             cluster-name: << parameters.cluster-name >>
-        - helm/delete-helm-release:
-            helm-version: v3.2.4
-            release-name: grafana-release
+        - helm/delete_helm_release:
+            helm_version: v3.2.4
+            release_name: grafana-release
             timeout: 600s
 
   workflows:
@@ -42,16 +42,16 @@ usage:
       jobs:
         - aws-eks/create-cluster:
             cluster-name: test-cluster
-        - install-helm-chart:
+        - install_helm_chart:
             cluster-name: test-cluster
             requires:
               - aws-eks/create-cluster
-        - delete-helm-release:
+        - delete_helm_release:
             cluster-name: test-cluster
             requires:
-              - install-helm-chart
+              - install_helm_chart
         - aws-eks/delete-cluster:
             cluster-name: test-cluster
             wait: true
             requires:
-              - delete-helm-release
+              - delete_helm_release
