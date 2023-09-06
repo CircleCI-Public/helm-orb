@@ -32,6 +32,11 @@ parameters:
       The kubernetes namespace that should be used.
     type: string
     default: ""
+  create_namespace:
+    description: |
+      This parameter creates the kubernetes namespace if the one provided does not exist.
+    type: boolean
+    default: false
   wait:
     description: |
       Whether to wait for the installation or upgrade to be complete
@@ -76,6 +81,7 @@ steps:
         HELM_STR_VALUES_TO_OVERRIDE: << parameters.values_to_override >>
         HELM_STR_NAMESPACE: << parameters.namespace >>
         HELM_BOOL_WAIT: << parameters.wait >>
+        HELM_BOOL_CREATE_NAMESPACE: << parameters.create_namespace >>
         HELM_STR_CHART: << parameters.chart >>
         HELM_BOOL_WAIT_FOR_JOBS: << parameters.wait_for_jobs >>
       command: <<include(scripts/install_helm_chart.sh)>>
