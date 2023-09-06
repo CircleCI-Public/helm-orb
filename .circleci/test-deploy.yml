@@ -31,7 +31,7 @@ jobs:
         type: string
     steps:
       - helm/install_helm_plugin:
-          version: << parameters.helm_plugin_url >>
+          helm_plugin_url: << parameters.helm_plugin_url >>
   install-helm-on-eks-cluster:
     docker:
       - image: cimg/python:3.10
