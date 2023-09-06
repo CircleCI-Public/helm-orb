@@ -3,16 +3,16 @@ description: |
   Requirements: helm should be installed on the cluster
 
 parameters:
-  helm-plugin-url:
+  helm_plugin_url:
     description: |
       absolute URL to helm plugin to install
       (e.g. https://example.com/helm-plugin/helm-plugin-1.2.3.tgz)
     type: string
-  helm-version:
+  helm_version:
     type: string
     default: "v3.8.2"
     description: the helm client version to install. e.g. v3.0.0
-  no-output-timeout:
+  no_output_timeout:
     description: |
       Elapsed time that the helm command can run on CircleCI without output.
       The string is a decimal with unit suffix, such as “20m”, “1.25h”, “5s”
@@ -20,11 +20,11 @@ parameters:
     default: "30m"
 
 steps:
-  - install-helm-client:
-      version: << parameters.helm-version >>
+  - install_helm_client:
+      version: << parameters.helm_version >>
   - run:
       name: Install helm plugin
       environment:
-        HELM_PLUGIN_URL: << parameters.helm-plugin-url >>
-      command: <<include(scripts/helm-plugin-install.sh)>>
-      no_output_timeout: << parameters.no-output-timeout >>
+        HELM_STR_PLUGIN_URL: << parameters.helm_plugin_url >>
+      command: <<include(scripts/install_helm_plugin.sh)>>
+      no_output_timeout: << parameters.no_output_timeout >>
