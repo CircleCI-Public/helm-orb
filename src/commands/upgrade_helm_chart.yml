@@ -27,6 +27,11 @@ parameters:
       The kubernetes namespace that should be used.
     type: string
     default: ""
+  create_namespace:
+    description: |
+      This parameter creates the kubernetes namespace if the one provided does not exist.
+    type: boolean
+    default: false
   wait:
     description: |
       Whether to wait for the installation to be complete.
@@ -126,6 +131,7 @@ steps:
         HELM_BOOL_NO_HOOKS: << parameters.no_hooks >>
         HELM_BOOL_RECREATE_PODS: << parameters.recreate_pods >>
         HELM_STR_NAMESPACE: << parameters.namespace >>
+        HELM_BOOL_CREATE_NAMESPACE: << parameters.create_namespace >>
         HELM_STR_DEVEL: << parameters.devel >>
         HELM_BOOL_DRY_RUN: << parameters.dry_run >>
         HELM_BOOL_RESET_VALUES: << parameters.reset_values >>
