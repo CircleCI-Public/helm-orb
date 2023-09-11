@@ -17,6 +17,7 @@ parameters:
       The url for the helm chart repository used as part of helm repo add
       command
     type: string
+    default: ""
   release_name:
     description: |
       Specify a name for the release.
