@@ -60,8 +60,10 @@ if [ "${HELM_BOOL_FORCE}" -eq 1 ]; then
   set -- "$@" --force
 fi
 
-helm repo add "${HELM_STR_RELEASE_NAME}" "${HELM_STR_ADD_REPO}"
-helm repo update
+if [ -n "${HELM_STR_ADD_REPO}" ]; then
+  helm repo add "${HELM_STR_RELEASE_NAME}" "${HELM_STR_ADD_REPO}"
+  helm repo update
+fi
 
 helm upgrade --install "${HELM_STR_RELEASE_NAME}" "${HELM_STR_CHART}" "$@"
 set +x
