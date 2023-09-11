@@ -151,10 +151,6 @@ workflows:
           name: helm-client-install-specific-version
           version: v3.0.0
           filters: *filters
-      - helm-plugin-install-test:
-          name: helm-plugin-install-env
-          helm_plugin_url: https://github.com/adamreese/helm-env
-          filters: *filters
       - aws-eks/create-cluster:
           name: create-cluster-helm4
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm4-eks
