@@ -98,11 +98,6 @@ parameters:
       command. Format: key1=val1,key2=val2
     type: string
     default: ""
-  update_repositories:
-    description: |
-      Choose to update repositories by running helm repo update.
-    type: boolean
-    default: true
   helm_version:
     type: string
     default: "v3.8.2"
