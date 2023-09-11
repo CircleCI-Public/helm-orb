@@ -23,15 +23,6 @@ jobs:
     steps:
       - helm/install_helm_client:
           version: << parameters.version >>
-  helm-plugin-install-test:
-    docker:
-      - image: cimg/base:current
-    parameters:
-      helm_plugin_url:
-        type: string
-    steps:
-      - helm/install_helm_plugin:
-          helm_plugin_url: << parameters.helm_plugin_url >>
   install-helm-on-eks-cluster:
     docker:
       - image: cimg/python:3.10
