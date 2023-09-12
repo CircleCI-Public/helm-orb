@@ -56,6 +56,11 @@ jobs:
         type: string
         default: "prometheus-community/prometheus"
         description: the helm chart to install
+      debug:
+        description: |
+          Enable debug mode by adding 
+        type: boolean
+        default: false
     steps:
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: << parameters.cluster-name >>
@@ -72,6 +77,7 @@ jobs:
           add_repo: << parameters.add_repo >>
           release_name: << parameters.release_name >>
           helm_version: << parameters.helm_version >>
+          debug: << parameters.debug >>
   upgrade-helm-chart-on-eks-cluster:
     docker:
       - image: cimg/python:3.10
@@ -94,12 +100,11 @@ jobs:
         type: string
         default: "prometheus-community/prometheus"
         description: the helm chart to install
-      history_max:  
+      debug:
         description: |
-          Helm stores historical revisions for a given release. Specify the amount of historical
-          releases stored. By default, 10 releases are stored.
-        type: string
-        default: ""
+          Enable debug mode by adding 
+        type: boolean
+        default: false
     steps:
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: << parameters.cluster-name >>
@@ -107,7 +112,7 @@ jobs:
           aws-region: us-west-2
       - helm/install_helm_client:
           version: << parameters.helm_version >>
-          history_max: << parameters.history_max >>
+
       - run:
           name: Install cncf stable repo
           command: |
@@ -117,7 +122,7 @@ jobs:
           chart: << parameters.chart >>
           release_name: << parameters.release_name >>
           helm_version: << parameters.helm_version >>
-          history_max: << parameters.history_max >>
+          debug: << parameters.debug >>
           # test specifying no_output_timeout
           no_output_timeout: 25m
   delete-helm-release-on-eks-cluster:
@@ -172,7 +177,7 @@ workflows:
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm4-eks
           add_repo: https://prometheus-community.github.io/helm-charts
           chart: prometheus-community/prometheus
-          history_max: "25"
+          debug: true
           context: CPE_ORBS_AWS
           filters: *filters
           requires:
@@ -181,7 +186,7 @@ workflows:
           name: upgrade-helm-chart-on-eks-cluster-helm4
           helm_version: v3.8.2
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm4-eks
-          history_max: "25"
+          debug: true
           context: CPE_ORBS_AWS
           filters: *filters
           requires:

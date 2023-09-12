@@ -8,7 +8,6 @@ HELM_STR_VALUES_TO_OVERRIDE="$(echo "${HELM_STR_VALUES_TO_OVERRIDE}" | circleci 
 HELM_STR_CHART="$(echo "${HELM_STR_CHART}" | circleci env subst)"
 HELM_STR_RELEASE_NAME="$(echo "${HELM_STR_RELEASE_NAME}" | circleci env subst)"
 HELM_STR_ADD_REPO="$(echo "${HELM_STR_ADD_REPO}" | circleci env subst)"
-HELM_STR_HISTORY_MAX="$(echo "${HELM_STR_HISTORY_MAX}" | circleci env subst)"
 
 set -x
 if [ -n "${HELM_STR_NAMESPACE}" ]; then
@@ -62,9 +61,6 @@ if [ "${HELM_BOOL_FORCE}" -eq 1 ]; then
 fi
 if [ "${HELM_BOOL_DEBUG}" -eq 1 ]; then
   set -- "$@" --debug
-fi
-if [ -n "${HELM_STR_HISTORY_MAX}" ]; then
-  set -- "$@" --history-max "${HELM_STR_HISTORY_MAX}"
 fi
 
 if [ -n "${HELM_STR_ADD_REPO}" ]; then

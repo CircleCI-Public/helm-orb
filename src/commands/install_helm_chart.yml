@@ -62,12 +62,6 @@ parameters:
       The string is a decimal with unit suffix, such as “20m”, “1.25h”, “5s”
     type: string
     default: "30m"
-  history_max:  
-    description: |
-      Helm stores historical revisions for a given release. Specify the amount of historical
-      releases stored. By default, 10 releases are stored.
-    type: string
-    default: ""
   debug:
     description: |
       Enable debug mode by adding --debug to helm command. Defaults to false.
@@ -95,6 +89,5 @@ steps:
         HELM_STR_CHART: << parameters.chart >>
         HELM_BOOL_WAIT_FOR_JOBS: << parameters.wait_for_jobs >>
         HELM_BOOL_DEBUG: << parameters.debug >>
-        HELM_STR_HISTORY_MAX: << parameters.history_max >>
       command: <<include(scripts/install_helm_chart.sh)>>
       no_output_timeout: << parameters.no_output_timeout >>
