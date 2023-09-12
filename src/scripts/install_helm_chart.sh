@@ -22,6 +22,9 @@ fi
 if [ "${HELM_BOOL_WAIT}" -eq 1 ]; then
   set -- "$@" --wait
 fi
+if [ "${HELM_BOOL_DEBUG}" -eq 1 ]; then
+  set -- "$@" --debug
+fi
 if [ -n "${HELM_STR_HISTORY_MAX}" ]; then
   set -- "$@" --history-max "${HELM_STR_HISTORY_MAX}"
 fi

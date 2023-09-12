@@ -68,6 +68,11 @@ parameters:
       releases stored. By default, 10 releases are stored.
     type: string
     default: ""
+  debug:
+    description: |
+      Enable debug mode by adding --debug to helm command. Defaults to false.
+    type: boolean
+    default: false
 steps:
   - install_helm_client:
       version: << parameters.helm_version >>
@@ -89,6 +94,7 @@ steps:
         HELM_BOOL_CREATE_NAMESPACE: << parameters.create_namespace >>
         HELM_STR_CHART: << parameters.chart >>
         HELM_BOOL_WAIT_FOR_JOBS: << parameters.wait_for_jobs >>
+        HELM_BOOL_DEBUG: << parameters.debug >>
         HELM_STR_HISTORY_MAX: << parameters.history_max >>
       command: <<include(scripts/install_helm_chart.sh)>>
       no_output_timeout: << parameters.no_output_timeout >>
