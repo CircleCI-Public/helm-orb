@@ -115,6 +115,12 @@ parameters:
       The --wait flag will be set automatically if --atomic is used
     type: boolean
     default: false
+  history_max:  
+    description: |
+      Helm stores historical revisions for a given release. Specify the amount of historical
+      releases stored. By default, 10 releases are stored.
+    type: string
+    default: ""
 steps:
   - install_helm_client:
       version: << parameters.helm_version >>
@@ -140,5 +146,6 @@ steps:
         HELM_STR_ADD_REPO: << parameters.add_repo >>
         HELM_BOOL_WAIT_FOR_JOBS: << parameters.wait_for_jobs >>
         HELM_BOOL_FORCE: << parameters.force >>
+        HELM_STR_HISTORY_MAX: << parameters.history_max >>
       command: <<include(scripts/upgrade_helm_chart.sh)>>
       no_output_timeout: << parameters.no_output_timeout >>

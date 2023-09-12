@@ -8,15 +8,10 @@ parameters:
     type: string
     default: "v3.8.2"
     description: the helm client version to install. e.g. v3.8.0
-  stable_repo_url:
-    type: string
-    default: "https://charts.helm.sh/stable"
-    description: the helm stable repository url to use.
 
 steps:
   - run:
       name: Install and init the helm client (if necessary)
       environment:
         HELM_STR_VERSION: << parameters.version >>
-        HELM_STR_STABLE_REPO_URL: << parameters.stable_repo_url >>
       command: <<include(scripts/install_helm_client.sh)>>
