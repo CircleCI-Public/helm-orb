@@ -21,6 +21,9 @@ fi
 if [ "${HELM_BOOL_WAIT}" -eq 1 ]; then
   set -- "$@" --wait
 fi
+if [ "${HELM_BOOL_DEBUG}" -eq 1 ]; then
+  set -- "$@" --debug
+fi
 if [ -n "${HELM_STR_RELEASE_NAME}" ]; then
   helm install "${HELM_STR_RELEASE_NAME}" "${HELM_STR_CHART}" "$@"
 else
