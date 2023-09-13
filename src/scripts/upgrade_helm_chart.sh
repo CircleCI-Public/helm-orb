@@ -59,6 +59,9 @@ fi
 if [ "${HELM_BOOL_FORCE}" -eq 1 ]; then
   set -- "$@" --force
 fi
+if [ "${HELM_BOOL_DEBUG}" -eq 1 ]; then
+  set -- "$@" --debug
+fi
 
 if [ -n "${HELM_STR_ADD_REPO}" ]; then
   helm repo add "${HELM_STR_RELEASE_NAME}" "${HELM_STR_ADD_REPO}"

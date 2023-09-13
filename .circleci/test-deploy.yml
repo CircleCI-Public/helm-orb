@@ -56,6 +56,11 @@ jobs:
         type: string
         default: "prometheus-community/prometheus"
         description: the helm chart to install
+      debug:
+        description: |
+          Enable debug mode 
+        type: boolean
+        default: false
     steps:
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: << parameters.cluster-name >>
@@ -72,6 +77,7 @@ jobs:
           add_repo: << parameters.add_repo >>
           release_name: << parameters.release_name >>
           helm_version: << parameters.helm_version >>
+          debug: << parameters.debug >>
   upgrade-helm-chart-on-eks-cluster:
     docker:
       - image: cimg/python:3.10
@@ -94,6 +100,11 @@ jobs:
         type: string
         default: "prometheus-community/prometheus"
         description: the helm chart to install
+      debug:
+        description: |
+          Enable debug mode
+        type: boolean
+        default: false
     steps:
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: << parameters.cluster-name >>
@@ -110,6 +121,8 @@ jobs:
           chart: << parameters.chart >>
           release_name: << parameters.release_name >>
           helm_version: << parameters.helm_version >>          # test specifying no_output_timeout
+          debug: << parameters.debug >>
+          # test specifying no_output_timeout
           no_output_timeout: 25m
   delete-helm-release-on-eks-cluster:
     docker:
@@ -163,6 +176,7 @@ workflows:
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm4-eks
           add_repo: https://prometheus-community.github.io/helm-charts
           chart: prometheus-community/prometheus
+          debug: true
           context: CPE_ORBS_AWS
           filters: *filters
           requires:
@@ -171,6 +185,7 @@ workflows:
           name: upgrade-helm-chart-on-eks-cluster-helm4
           helm_version: v3.8.2
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm4-eks
+          debug: true
           context: CPE_ORBS_AWS
           filters: *filters
           requires:
