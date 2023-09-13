@@ -58,7 +58,7 @@ jobs:
         description: the helm chart to install
       debug:
         description: |
-          Enable debug mode by adding 
+          Enable debug mode 
         type: boolean
         default: false
     steps:
@@ -102,7 +102,7 @@ jobs:
         description: the helm chart to install
       debug:
         description: |
-          Enable debug mode by adding 
+          Enable debug mode
         type: boolean
         default: false
     steps:
@@ -112,7 +112,6 @@ jobs:
           aws-region: us-west-2
       - helm/install_helm_client:
           version: << parameters.helm_version >>
-
       - run:
           name: Install cncf stable repo
           command: |
