@@ -120,7 +120,7 @@ jobs:
           add_repo: << parameters.add_repo >>
           chart: << parameters.chart >>
           release_name: << parameters.release_name >>
-          helm_version: << parameters.helm_version >>
+          helm_version: << parameters.helm_version >>          # test specifying no_output_timeout
           debug: << parameters.debug >>
           # test specifying no_output_timeout
           no_output_timeout: 25m
