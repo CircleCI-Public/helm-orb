@@ -17,6 +17,7 @@ parameters:
       The url for the helm chart repository used as part of helm repo add
       command
     type: string
+    default: ""
   release_name:
     description: |
       Specify a name for the release.
@@ -98,11 +99,6 @@ parameters:
       command. Format: key1=val1,key2=val2
     type: string
     default: ""
-  update_repositories:
-    description: |
-      Choose to update repositories by running helm repo update.
-    type: boolean
-    default: true
   helm_version:
     type: string
     default: "v3.8.2"
@@ -117,6 +113,11 @@ parameters:
     description: |
       if set, upgrade process rolls back changes made in case of failed upgrade.
       The --wait flag will be set automatically if --atomic is used
+    type: boolean
+    default: false
+  debug:
+    description: |
+      Enable debug mode by adding --debug to helm command. Defaults to false.
     type: boolean
     default: false
 steps:
@@ -144,5 +145,6 @@ steps:
         HELM_STR_ADD_REPO: << parameters.add_repo >>
         HELM_BOOL_WAIT_FOR_JOBS: << parameters.wait_for_jobs >>
         HELM_BOOL_FORCE: << parameters.force >>
+        HELM_BOOL_DEBUG: << parameters.debug >>
       command: <<include(scripts/upgrade_helm_chart.sh)>>
       no_output_timeout: << parameters.no_output_timeout >>

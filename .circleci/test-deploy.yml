@@ -59,17 +59,17 @@ jobs:
         description: the helm client version to install. e.g. v3.0.0
       add_repo:
         type: string
-        default: "https://prometheus-community.github.io/helm-charts"
+        default: ""
         description: the helm chart repository url to use
       chart:
         type: string
         default: "prometheus-community/prometheus"
         description: the helm chart to install
-      update_repositories:
+      debug:
         description: |
-          Choose to update repositories by running helm repo update.
+          Enable debug mode 
         type: boolean
-        default: true
+        default: false
     steps:
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: << parameters.cluster-name >>
@@ -86,7 +86,7 @@ jobs:
           add_repo: << parameters.add_repo >>
           release_name: << parameters.release_name >>
           helm_version: << parameters.helm_version >>
-          update_repositories: << parameters.update_repositories >>
+          debug: << parameters.debug >>
   upgrade-helm-chart-on-eks-cluster:
     docker:
       - image: cimg/python:3.10
@@ -109,11 +109,11 @@ jobs:
         type: string
         default: "prometheus-community/prometheus"
         description: the helm chart to install
-      update_repositories:
+      debug:
         description: |
-          Choose to update repositories by running helm repo update.
+          Enable debug mode
         type: boolean
-        default: true
+        default: false
     steps:
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: << parameters.cluster-name >>
@@ -129,8 +129,8 @@ jobs:
           add_repo: << parameters.add_repo >>
           chart: << parameters.chart >>
           release_name: << parameters.release_name >>
-          helm_version: << parameters.helm_version >>
-          update_repositories: << parameters.update_repositories >>
+          helm_version: << parameters.helm_version >>          # test specifying no_output_timeout
+          debug: << parameters.debug >>
           # test specifying no_output_timeout
           no_output_timeout: 25m
   delete-helm-release-on-eks-cluster:
@@ -186,10 +186,10 @@ workflows:
           name: install-helm-chart-on-eks-cluster-helm4
           helm_version: v3.8.2
           # test repo update
-          update_repositories: true
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm4-eks
           add_repo: https://prometheus-community.github.io/helm-charts
           chart: prometheus-community/prometheus
+          debug: true
           context: CPE_ORBS_AWS
           filters: *filters
           requires:
@@ -197,8 +197,8 @@ workflows:
       - upgrade-helm-chart-on-eks-cluster:
           name: upgrade-helm-chart-on-eks-cluster-helm4
           helm_version: v3.8.2
-          update_repositories: false
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-helm4-eks
+          debug: true
           context: CPE_ORBS_AWS
           filters: *filters
           requires:
