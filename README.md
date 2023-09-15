@@ -6,6 +6,7 @@ Here are the features that the Helm orb provides:
 
 - Installing the helm client (`install-helm-client`)
 - Installing helm charts (`install-helm-chart`) and deleting releases (`delete-helm-release`)
+- Installing helm plugin (`helm-plugin-install`)
 
 Table of Contents
 =================
