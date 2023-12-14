@@ -11,7 +11,7 @@ HELM_STR_ADD_REPO="$(echo "${HELM_STR_ADD_REPO}" | circleci env subst)"
 
 set -x
 if [ -n "${HELM_STR_NAMESPACE}" ]; then
-  if [ "${HELM_BOOL_CREATE_NAME_SPACE}" -eq "1" ]; then
+  if [ "${HELM_BOOL_CREATE_NAMESPACE}" -eq "1" ]; then
     set -- "$@" --create-namespace --namespace="${HELM_STR_NAMESPACE}"
   else
     set -- "$@" --namespace="${HELM_STR_NAMESPACE}"

@@ -12,7 +12,7 @@ if [ "${HELM_BOOL_WAIT_FOR_JOBS}" -eq 1 ]; then
   set -- "$@" --wait-for-jobs
 fi
 if [ -n "${HELM_STR_NAMESPACE}" ]; then
-  if [ "${HELM_BOOL_CREATE_NAME_SPACE}" -eq "1" ]; then
+  if [ "${HELM_BOOL_CREATE_NAMESPACE}" -eq "1" ]; then
     set -- "$@" --create-namespace --namespace="${HELM_STR_NAMESPACE}"
   else
     set -- "$@" --namespace="${HELM_STR_NAMESPACE}"
