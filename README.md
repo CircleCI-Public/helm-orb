@@ -4,9 +4,9 @@ A CircleCI Orb to simplify deployments to Kubernetes using Helm.
 
 Here are the features that the Helm orb provides:
 
-- Installing the helm client (`install-helm-client`)
-- Installing helm charts (`install-helm-chart`) and deleting releases (`delete-helm-release`)
-- Installing helm plugin (`helm-plugin-install`)
+- Installing the helm client (`install_helm_client`)
+- Installing helm charts (`install_helm_chart`) and deleting releases (`delete_helm_release`)
+- Installing helm plugin (`install_helm_plugin`)
 
 Table of Contents
 =================
