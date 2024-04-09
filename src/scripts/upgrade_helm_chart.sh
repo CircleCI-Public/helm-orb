@@ -50,6 +50,9 @@ fi
 if [ -n "${HELM_STR_VALUES_TO_OVERRIDE}" ]; then
   set -- "$@" --set "${HELM_STR_VALUES_TO_OVERRIDE}"
 fi
+if [ -n "${HELM_INT_HISTORY_MAX}" ]; then
+  set -- "$@" --history-max "${HELM_INT_HISTORY_MAX}"
+fi
 if [ -n "${HELM_STR_VERSION}" ]; then
   set -- "$@" --version="${HELM_STR_VERSION}"
 fi
