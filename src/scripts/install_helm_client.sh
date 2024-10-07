@@ -16,4 +16,6 @@ INSTALL_SCRIPT="https://raw.githubusercontent.com/helm/helm/master/scripts/get-h
 curl "${INSTALL_SCRIPT}" > get_helm.sh
 chmod 700 get_helm.sh
 ./get_helm.sh "$@"
+
+rm -rf get_helm.sh
 set +x
