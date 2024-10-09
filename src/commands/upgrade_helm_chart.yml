@@ -99,6 +99,11 @@ parameters:
       command. Format: key1=val1,key2=val2
     type: string
     default: ""
+  history_max:
+    description: |
+      limit the maximum number of revisions saved per release. Use 0 for no limit (default 10)
+    type: integer
+    default: 10
   helm_version:
     type: string
     default: "v3.8.2"
@@ -140,6 +145,7 @@ steps:
         HELM_STR_VALUES: << parameters.values >>
         HELM_STR_VERSION: << parameters.version >>
         HELM_STR_VALUES_TO_OVERRIDE: << parameters.values_to_override >>
+        HELM_INT_HISTORY_MAX: << parameters.history_max >>
         HELM_STR_CHART: << parameters.chart >>
         HELM_STR_RELEASE_NAME: << parameters.release_name >>
         HELM_STR_ADD_REPO: << parameters.add_repo >>
