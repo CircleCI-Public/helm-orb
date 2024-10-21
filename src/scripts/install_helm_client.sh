@@ -16,8 +16,8 @@ INSTALL_SCRIPT="https://raw.githubusercontent.com/helm/helm/master/scripts/get-h
 success_helm_download=false
 retry_count=0
 while [ "$retry_count" -lt "$HELM_RETRIES" ]; do
-  curl -sSf "${INSTALL_SCRIPT}" -o get_helm.sh
-  if [ $? -eq 0 ]; then
+  
+  if curl -sSf "${INSTALL_SCRIPT}" -o get_helm.sh; then
     echo "Script downloaded succesfully"
     success_helm_download=true
     break
