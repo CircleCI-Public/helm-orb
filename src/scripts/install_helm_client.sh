@@ -23,7 +23,7 @@ while [ "$retry_count" -lt "$HELM_RETRIES" ]; do
     break
   else
     echo "Error downloading. Retying..."
-    retry_count=$((rety_count + 1))
+    retry_count=$((retry_count + 1))
     sleep 5
   fi
 done
