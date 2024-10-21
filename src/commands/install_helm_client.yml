@@ -8,10 +8,15 @@ parameters:
     type: string
     default: "v3.8.2"
     description: the helm client version to install. e.g. v3.8.0
+  retries:
+    type: string
+    default: 2
+    description: The amount of retries when downloading the helm client, in case it fails.
 
 steps:
   - run:
       name: Install and init the helm client (if necessary)
       environment:
+        HELM_RETRIES: <<parameters.retries>>
         HELM_STR_VERSION: << parameters.version >>
       command: <<include(scripts/install_helm_client.sh)>>
