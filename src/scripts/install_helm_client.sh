@@ -1,6 +1,5 @@
 #!/bin/bash
 HELM_STR_VERSION="$(echo "${HELM_STR_VERSION}" | circleci env subst)"
-HELM_RETRIES="$(echo "${HELM_RETRIES}" | circleci env subst)"
 
 set -x
 if command -v helm &> /dev/null; then

@@ -9,7 +9,7 @@ parameters:
     default: "v3.8.2"
     description: the helm client version to install. e.g. v3.8.0
   retries:
-    type: string
+    type: integer
     default: 2
     description: The amount of retries when downloading the helm client, in case it fails.
 
