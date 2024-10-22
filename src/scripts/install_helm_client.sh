@@ -13,7 +13,24 @@ fi
 
 INSTALL_SCRIPT="https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3"
 
-curl "${INSTALL_SCRIPT}" > get_helm.sh
+success_helm_download=false
+retry_count=0
+while [ "$retry_count" -lt "$HELM_RETRIES" ]; do
+  
+  if curl -sSf "${INSTALL_SCRIPT}" -o get_helm.sh; then
+    echo "Script downloaded succesfully"
+    success_helm_download=true
+    break
+  else
+    echo "Error downloading. Retying..."
+    retry_count=$((retry_count + 1))
+    sleep 5
+  fi
+done
+if [ "$success_helm_download" = false ]; then
+  echo "Max retries reached"
+  exit 1
+fi
 chmod 700 get_helm.sh
 ./get_helm.sh "$@"
 
