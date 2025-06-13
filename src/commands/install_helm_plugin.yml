@@ -24,9 +24,16 @@ parameters:
     description: |
       Version of the plugin to install. e.g. v4.6.5
       If empty latest will be installed.
+  install_helm_client:
+    type: boolean
+    description: Whether or not to install the helm client. Defaults to true.
+    default: true
 steps:
-  - install_helm_client:
-      version: << parameters.helm_version >>
+  - when:
+      condition: << parameters.install_helm_client >>
+      steps:
+        - install_helm_client:
+            version: << parameters.helm_version >>
   - run:
       name: Install helm plugin
       environment:
