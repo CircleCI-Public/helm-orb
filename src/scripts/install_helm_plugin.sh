@@ -3,10 +3,10 @@ HELM_STR_PLUGIN_URL="$(echo "${HELM_STR_PLUGIN_URL}" | circleci env subst)"
 HELM_STR_PLUGIN_VERSION="$(echo "${HELM_STR_PLUGIN_VERSION}" | circleci env subst)"
 
 if [ -n "$HELM_STR_PLUGIN_VERSION" ]; then
-  PLUGIN_VERSION="--version $HELM_STR_PLUGIN_VERSION"
+  STATUS="$(helm plugin install "${HELM_STR_PLUGIN_URL}" --version "${HELM_STR_PLUGIN_VERSION}")"
+else
+  STATUS="$(helm plugin install "${HELM_STR_PLUGIN_URL}")"
 fi
-
-STATUS="$(helm plugin install "${HELM_STR_PLUGIN_URL}" "$PLUGIN_VERSION")"
 
 if echo "${STATUS}" | grep "Installed plugin:"; then
   echo "Installation successful"
