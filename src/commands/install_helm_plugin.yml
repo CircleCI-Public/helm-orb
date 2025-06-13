@@ -18,7 +18,12 @@ parameters:
       The string is a decimal with unit suffix, such as “20m”, “1.25h”, “5s”
     type: string
     default: "30m"
-
+  plugin_version:
+    default: ""
+    type: string
+    description: |
+      Version of the plugin to install. e.g. v4.6.5
+      If empty latest will be installed.
 steps:
   - install_helm_client:
       version: << parameters.helm_version >>
@@ -26,5 +31,6 @@ steps:
       name: Install helm plugin
       environment:
         HELM_STR_PLUGIN_URL: << parameters.helm_plugin_url >>
+        HELM_STR_PLUGIN_VERSION: << parameters.plugin_version >>
       command: <<include(scripts/install_helm_plugin.sh)>>
       no_output_timeout: << parameters.no_output_timeout >>
