@@ -32,10 +32,18 @@ jobs:
         type: string
       helm_plugin_url:
         type: string
+      gpg_key_url:
+        default: ""
+        type: string
+      skip_verify:
+        default: false
+        type: boolean
     steps:
       - helm/install_helm_plugin:
           helm_plugin_url: << parameters.helm_plugin_url >>
-          plugin_version: <<parameters.plugin_version>>
+          plugin_version: << parameters.plugin_version >>
+          gpg_key_url: << parameters.gpg_key_url >>
+          skip_verify: << parameters.skip_verify >>
   install-helm-on-eks-cluster:
     docker:
       - image: cimg/python:3.10
@@ -180,11 +188,12 @@ workflows:
       - helm-plugin-install-test:
           name: helm-plugin-install-env
           helm_plugin_url: https://github.com/adamreese/helm-env
+          skip_verify: true
           filters: *filters
       - helm-plugin-install-test:
           name: helm-plugin-install-secrets
-          helm_plugin_url: https://github.com/jkroepke/helm-secrets
-          plugin_version: v4.6.0 
+          helm_plugin_url: https://github.com/jkroepke/helm-secrets/releases/download/v4.7.6/secrets-4.7.6.tgz
+          gpg_key_url: https://github.com/jkroepke.gpg
           filters: *filters
       - aws-eks/create-cluster:
           name: create-cluster-helm4
