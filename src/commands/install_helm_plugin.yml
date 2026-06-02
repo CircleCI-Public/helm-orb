@@ -54,12 +54,28 @@ steps:
       steps:
         - run:
             name: Import GPG key for plugin verification
-            command: curl -fsSL "<< parameters.gpg_key_url >>" | gpg --import
-  - run:
-      name: Install helm plugin
-      environment:
-        HELM_STR_PLUGIN_URL: << parameters.helm_plugin_url >>
-        HELM_STR_PLUGIN_VERSION: << parameters.plugin_version >>
-        HELM_BOOL_SKIP_VERIFY: << parameters.skip_verify >>
-      command: <<include(scripts/install_helm_plugin.sh)>>
-      no_output_timeout: << parameters.no_output_timeout >>
+            command: |
+              curl -fsSL "<< parameters.gpg_key_url >>" | gpg --import
+              gpg --export > ~/.gnupg/pubring.gpg
+  - when:
+      condition: << parameters.skip_verify >>
+      steps:
+        - run:
+            name: Install helm plugin
+            environment:
+              HELM_STR_PLUGIN_URL: << parameters.helm_plugin_url >>
+              HELM_STR_PLUGIN_VERSION: << parameters.plugin_version >>
+              HELM_BOOL_SKIP_VERIFY: "true"
+            command: <<include(scripts/install_helm_plugin.sh)>>
+            no_output_timeout: << parameters.no_output_timeout >>
+  - unless:
+      condition: << parameters.skip_verify >>
+      steps:
+        - run:
+            name: Install helm plugin
+            environment:
+              HELM_STR_PLUGIN_URL: << parameters.helm_plugin_url >>
+              HELM_STR_PLUGIN_VERSION: << parameters.plugin_version >>
+              HELM_BOOL_SKIP_VERIFY: "false"
+            command: <<include(scripts/install_helm_plugin.sh)>>
+            no_output_timeout: << parameters.no_output_timeout >>

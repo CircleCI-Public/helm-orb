@@ -79,7 +79,7 @@ jobs:
         description: the helm chart to install
       debug:
         description: |
-          Enable debug mode 
+          Enable debug mode
         type: boolean
         default: false
     steps:
