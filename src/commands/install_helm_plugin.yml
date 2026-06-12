@@ -10,7 +10,7 @@ parameters:
     type: string
   helm_version:
     type: string
-    default: "v3.8.2"
+    default: "v4.2.0"
     description: the helm client version to install. e.g. v3.0.0
   no_output_timeout:
     description: |
@@ -28,16 +28,54 @@ parameters:
     type: boolean
     description: Whether or not to install the helm client. Defaults to true.
     default: true
+  skip_verify:
+    type: boolean
+    default: false
+    description: |
+      Pass --verify=false to helm plugin install. Set to true only for plugin
+      sources that do not provide GPG-signed provenance files. Helm 4 verifies
+      plugins by default; prefer using gpg_key_url for plugins that support it.
+  gpg_key_url:
+    type: string
+    default: ""
+    description: |
+      URL of the GPG public key to import before installing the plugin. Use this
+      for plugins that provide signed provenance files (e.g. set to
+      https://github.com/jkroepke.gpg for helm-secrets). Leave empty when
+      skip_verify is true or when the keyring is already configured.
 steps:
   - when:
       condition: << parameters.install_helm_client >>
       steps:
         - install_helm_client:
             version: << parameters.helm_version >>
-  - run:
-      name: Install helm plugin
-      environment:
-        HELM_STR_PLUGIN_URL: << parameters.helm_plugin_url >>
-        HELM_STR_PLUGIN_VERSION: << parameters.plugin_version >>
-      command: <<include(scripts/install_helm_plugin.sh)>>
-      no_output_timeout: << parameters.no_output_timeout >>
+  - when:
+      condition: << parameters.gpg_key_url >>
+      steps:
+        - run:
+            name: Import GPG key for plugin verification
+            command: |
+              curl -fsSL "<< parameters.gpg_key_url >>" | gpg --import
+              gpg --export > ~/.gnupg/pubring.gpg
+  - when:
+      condition: << parameters.skip_verify >>
+      steps:
+        - run:
+            name: Install helm plugin
+            environment:
+              HELM_STR_PLUGIN_URL: << parameters.helm_plugin_url >>
+              HELM_STR_PLUGIN_VERSION: << parameters.plugin_version >>
+              HELM_BOOL_SKIP_VERIFY: "true"
+            command: <<include(scripts/install_helm_plugin.sh)>>
+            no_output_timeout: << parameters.no_output_timeout >>
+  - unless:
+      condition: << parameters.skip_verify >>
+      steps:
+        - run:
+            name: Install helm plugin
+            environment:
+              HELM_STR_PLUGIN_URL: << parameters.helm_plugin_url >>
+              HELM_STR_PLUGIN_VERSION: << parameters.plugin_version >>
+              HELM_BOOL_SKIP_VERIFY: "false"
+            command: <<include(scripts/install_helm_plugin.sh)>>
+            no_output_timeout: << parameters.no_output_timeout >>
